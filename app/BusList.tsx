@@ -44,11 +44,15 @@ export default function BusList() {
   const filteredBuses = buses.filter((bus) => {
     const fromStop = bus.schedule.find((stop) => stop.stop === from);
     const toStop = bus.schedule.find((stop) => stop.stop === to);
-    return fromStop && toStop && fromIndex < toIndex;
+    return fromStop && toStop && ((fromIndex < toIndex) || (fromIndex > toIndex));
   });
 
   const handleBusSelect = (bus) => {
-    navigation.navigate('BusDetails', { bus });
+    const filteredSchedule = bus.schedule.slice(
+      Math.min(fromIndex, toIndex),
+      Math.max(fromIndex, toIndex) + 1
+    );
+    navigation.navigate('BusDetails', { bus: { ...bus, schedule: filteredSchedule } });
   };
 
   return (
