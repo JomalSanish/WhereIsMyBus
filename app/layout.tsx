@@ -1,14 +1,11 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import { createDrawerNavigator } from '@react-navigation/drawer';
-import Index from './index';
-import BusList from './BusList';
-import BusDetails from './BusDetails';
-import Login from './Login';
-import Help from './Help';
-import Contact from './Contact';
-import { drawerStyles } from './styles';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import { createDrawerNavigator } from "@react-navigation/drawer";
+import Index from "./index";
+import BusList from "./BusList";
+import BusDetails from "./BusDetails";
+import { drawerStyles } from "./styles";
 
 const Stack = createStackNavigator();
 const Drawer = createDrawerNavigator();
@@ -38,9 +35,6 @@ export default function RootLayout() {
         }}
       >
         <Drawer.Screen name="Home" component={MainStack} />
-        <Drawer.Screen name="Login" component={Login} />
-        <Drawer.Screen name="Help" component={Help} />
-        <Drawer.Screen name="Contact" component={Contact} />
       </Drawer.Navigator>
     </NavigationContainer>
   );
