@@ -4,7 +4,7 @@ Basic Structure
 
 WhereIsMyBusFrontEnd  //Main Program
 	 
-BusTrackerBackEnd //Secondary Program for driver/developer
+BusTracker //Secondary Program for driver/developer
 BusTrackerServer  //Connection to mongodb
 
 FrontEnd  //Main Program with connection to mongodb
@@ -17,3 +17,16 @@ Run cheyan ooro folderilum keeri first time npm install cheyendi varum, pinne np
 For clarifying further doubts contact
 Team lead : Basil Tomy Poopathu
 Project head : Christian John Varghese
+
+
+suggestions
+
+
+
+
+
+Updates
+
+
+
+
