@@ -17,6 +17,7 @@ Run cheyan ooro folderilum keeri first time npm install cheyendi varum, pinne np
 For clarifying further doubts contact
 Team lead : Basil Tomy Poopathu
 Project head : Christian John Varghese
+<<<<<<< HEAD
 
 
 suggestions
