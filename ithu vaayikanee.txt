@@ -1,0 +1,33 @@
+Ningade suggestions ivied idukaaa, Updates post cheyanum use cheyam
+
+Basic Structure
+
+WhereIsMyBusFrontEnd  //Main Program
+	 
+BusTracker //Secondary Program for driver/developer
+BusTrackerServer  //Connection to mongodb
+
+FrontEnd  //Main Program with connection to mongodb
+BackEnd  //Main Programs Backend
+
+
+
+Run cheyan ooro folderilum keeri first time npm install cheyendi varum, pinne npm start cheythal set aakum, expo go vechu aanu ithu cheythekunne so Expo Go app play storil ninum download cheythu QR scan cheythal phonil app use cheyam.
+
+For clarifying further doubts contact
+Team lead : Basil Tomy Poopathu
+Project head : Christian John Varghese
+<<<<<<< HEAD
+
+
+suggestions
+
+
+
+
+
+Updates
+
+
+
+
