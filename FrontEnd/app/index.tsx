@@ -25,7 +25,7 @@ export default function HomeScreen() {
   const [toSuggestions, setToSuggestions] = useState([]);
 
   const handleSearch = () => {
-    fetch(`https://3372-117-219-60-12.ngrok-free.app/buses?from=${from}&to=${to}`)
+    fetch(`https://modest-rare-pegasus.ngrok-free.app/buses?from=${from}&to=${to}`)
       .then(response => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
