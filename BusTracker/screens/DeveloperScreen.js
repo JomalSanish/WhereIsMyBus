@@ -1,14 +1,24 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
 const DeveloperScreen = () => {
   const [busName, setBusName] = useState('');
   const [buses, setBuses] = useState([]);
 
+  useEffect(() => {
+    fetchBuses();
+  }, []);
+
+  const fetchBuses = () => {
+    axios.get('http://192.168.88.130:3000/buses')
+      .then(response => setBuses(response.data))
+      .catch(error => console.error(error));
+  };
+
   const addBus = () => {
     if (busName.trim() !== '') {
-      axios.post('http://192.168.20.130:3000/add-bus', { name: busName })
+      axios.post('http://192.168.88.130:3000/add-bus', { name: busName })
         .then(response => {
           setBuses([...buses, response.data]);
           setBusName('');
@@ -17,6 +27,14 @@ const DeveloperScreen = () => {
     } else {
       alert('Bus name cannot be empty');
     }
+  };
+
+  const deleteBus = (id) => {
+    axios.delete(`http://192.168.88.130:3000/delete-bus/${id}`)
+      .then(() => {
+        setBuses(buses.filter(bus => bus._id !== id));
+      })
+      .catch(error => console.error(error));
   };
 
   return (
@@ -31,7 +49,15 @@ const DeveloperScreen = () => {
       <Button title="Add" onPress={addBus} />
       <FlatList
         data={buses}
-        renderItem={({ item }) => <Text>{item.name}</Text>}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={styles.busItem}>
+            <Text>{item.name}</Text>
+            <TouchableOpacity onPress={() => deleteBus(item._id)}>
+              <Text style={styles.deleteButton}>X</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         style={styles.list}
       />
     </View>
@@ -56,6 +82,18 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 20,
     width: '80%',
+  },
+  busItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  deleteButton: {
+    color: 'red',
+    fontWeight: 'bold',
   },
 });
 

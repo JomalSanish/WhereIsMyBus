@@ -53,6 +53,12 @@ app.get('/buses', async (req, res) => {
   res.send(buses);
 });
 
+app.delete('/delete-bus/:id', async (req, res) => {
+  const { id } = req.params;
+  await Bus.findByIdAndDelete(id);
+  res.send({ message: 'Bus deleted successfully' });
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
