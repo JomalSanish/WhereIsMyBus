@@ -11,14 +11,14 @@ const DeveloperScreen = () => {
   }, []);
 
   const fetchBuses = () => {
-    axios.get('http://192.168.88.130:3000/buses')
+    axios.get('http://192.168.15.130:3000/buses')
       .then(response => setBuses(response.data))
       .catch(error => console.error(error));
   };
 
   const addBus = () => {
     if (busName.trim() !== '') {
-      axios.post('http://192.168.88.130:3000/add-bus', { name: busName })
+      axios.post('http://192.168.15.130:3000/add-bus', { name: busName })
         .then(response => {
           setBuses([...buses, response.data]);
           setBusName('');
@@ -30,7 +30,7 @@ const DeveloperScreen = () => {
   };
 
   const deleteBus = (id) => {
-    axios.delete(`http://192.168.88.130:3000/delete-bus/${id}`)
+    axios.delete(`http://192.168.15.130:3000/delete-bus/${id}`)
       .then(() => {
         setBuses(buses.filter(bus => bus._id !== id));
       })
