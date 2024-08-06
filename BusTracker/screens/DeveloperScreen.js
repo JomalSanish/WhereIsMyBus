@@ -1,30 +1,48 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
 const DeveloperScreen = () => {
-  const [stopName, setStopName] = useState('');
-  const [latitude, setLatitude] = useState('');
+  const [busStopName, setBusStopName] = useState('');
   const [longitude, setLongitude] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [stops, setStops] = useState([]);
+
+  useEffect(() => {
+    fetchStops();
+  }, []);
+
+  const fetchStops = () => {
+    axios.get('http://192.168.15.130:3000/stops')
+      .then(response => setStops(response.data))
+      .catch(error => console.error(error));
+  };
 
   const addStop = () => {
-    if (stopName.trim() === '' || latitude.trim() === '' || longitude.trim() === '') {
-      alert('Please fill out all fields');
-      return;
+    if (busStopName.trim() !== '' && longitude.trim() !== '' && latitude.trim() !== '') {
+      axios.post('http://192.168.15.130:3000/add-stop', { 
+        name: busStopName, 
+        longitude: parseFloat(longitude),
+        latitude: parseFloat(latitude) 
+      })
+        .then(response => {
+          setStops([...stops, response.data]);
+          setBusStopName('');
+          setLongitude('');
+          setLatitude('');
+        })
+        .catch(error => console.error(error));
+    } else {
+      alert('All fields are required');
     }
+  };
 
-    axios.post('http://192.168.15.130:3000/add-stop', {
-      name: stopName,
-      latitude: parseFloat(latitude),
-      longitude: parseFloat(longitude),
-    })
-    .then(response => {
-      alert('Stop added successfully');
-      setStopName('');
-      setLatitude('');
-      setLongitude('');
-    })
-    .catch(error => console.error(error));
+  const deleteStop = (id) => {
+    axios.delete(`http://192.168.15.130:3000/delete-stop/${id}`)
+      .then(() => {
+        setStops(stops.filter(stop => stop._id !== id));
+      })
+      .catch(error => console.error(error));
   };
 
   return (
@@ -32,16 +50,9 @@ const DeveloperScreen = () => {
       <Text>Add a New Bus Stop</Text>
       <TextInput
         style={styles.input}
-        placeholder="Stop Name"
-        value={stopName}
-        onChangeText={setStopName}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Latitude"
-        value={latitude}
-        onChangeText={setLatitude}
-        keyboardType="numeric"
+        placeholder="Bus Stop Name"
+        value={busStopName}
+        onChangeText={setBusStopName}
       />
       <TextInput
         style={styles.input}
@@ -50,7 +61,28 @@ const DeveloperScreen = () => {
         onChangeText={setLongitude}
         keyboardType="numeric"
       />
+      <TextInput
+        style={styles.input}
+        placeholder="Latitude"
+        value={latitude}
+        onChangeText={setLatitude}
+        keyboardType="numeric"
+      />
       <Button title="Add" onPress={addStop} />
+
+      <FlatList
+        data={stops}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={styles.stopItem}>
+            <Text>{item.name}</Text>
+            <TouchableOpacity onPress={() => deleteStop(item._id)}>
+              <Text style={styles.deleteButton}>X</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        style={styles.list}
+      />
     </View>
   );
 };
@@ -69,6 +101,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     paddingHorizontal: 8,
     width: '80%',
+  },
+  list: {
+    marginTop: 20,
+    width: '80%',
+  },
+  stopItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  deleteButton: {
+    color: 'red',
+    fontWeight: 'bold',
   },
 });
 

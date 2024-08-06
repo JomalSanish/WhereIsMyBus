@@ -20,23 +20,6 @@ mongoose.connect(uri)
     console.error('Error connecting to MongoDB:', error);
   });
 
-const stopSchema = new mongoose.Schema({
-  name: String,
-  location: {
-    latitude: Number,
-    longitude: Number,
-  },
-});
-
-app.post('/add-stop', async (req, res) => {
-  const { name, latitude, longitude } = req.body;
-  const stop = new Stop({ name, location: { latitude, longitude } });
-  await stop.save();
-  res.send(stop);
-});
-
-const Stop = mongoose.model('Stop', stopSchema);
-
 const busSchema = new mongoose.Schema({
   name: String,
   location: {
@@ -45,8 +28,16 @@ const busSchema = new mongoose.Schema({
   },
 });
 
-const Bus = mongoose.model('Bus', busSchema);
+const stopSchema = new mongoose.Schema({
+  name: String,
+  longitude: Number,
+  latitude: Number,
+});
 
+const Bus = mongoose.model('Bus', busSchema);
+const Stop = mongoose.model('Stop', stopSchema);
+
+// Routes for buses
 app.post('/add-bus', async (req, res) => {
   const { name } = req.body;
   const bus = new Bus({ name });
@@ -73,6 +64,25 @@ app.delete('/delete-bus/:id', async (req, res) => {
   const { id } = req.params;
   await Bus.findByIdAndDelete(id);
   res.send({ message: 'Bus deleted successfully' });
+});
+
+// Routes for stops
+app.post('/add-stop', async (req, res) => {
+  const { name, longitude, latitude } = req.body;
+  const stop = new Stop({ name, longitude, latitude });
+  await stop.save();
+  res.send(stop);
+});
+
+app.get('/stops', async (req, res) => {
+  const stops = await Stop.find();
+  res.send(stops);
+});
+
+app.delete('/delete-stop/:id', async (req, res) => {
+  const { id } = req.params;
+  await Stop.findByIdAndDelete(id);
+  res.send({ message: 'Stop deleted successfully' });
 });
 
 app.listen(port, () => {
