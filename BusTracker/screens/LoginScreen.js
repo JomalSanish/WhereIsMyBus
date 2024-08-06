@@ -8,8 +8,8 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = () => {
     if ((loginId === 'driver' || loginId === 'Driver' || loginId === 'Driver ') && (password === 'alan123' || password === 'Alan123')) {
       navigation.navigate('Driver');
-    } else if ((loginId === 'developer' || loginId === 'Developer' || loginId === 'Developer ') && (password === 'jomal123' || password === 'Jomal123')) {
-      navigation.navigate('Developer');
+    } else if ((loginId === 'admin' || loginId === 'Admin' || loginId === 'Admin ') && (password === 'jomal123' || password === 'Jomal123')) { // Change Developer to Admin
+      navigation.navigate('Admin');
     } else {
       alert('Invalid credentials');
     }

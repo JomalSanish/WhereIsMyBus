@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import axios from 'axios';
 
-const DeveloperScreen = () => {
+const AdminScreen = () => {
   const [busName, setBusName] = useState('');
   const [buses, setBuses] = useState([]);
 
@@ -97,4 +97,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default DeveloperScreen;
+export default AdminScreen;
