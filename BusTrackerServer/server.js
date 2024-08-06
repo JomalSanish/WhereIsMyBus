@@ -20,6 +20,23 @@ mongoose.connect(uri)
     console.error('Error connecting to MongoDB:', error);
   });
 
+const stopSchema = new mongoose.Schema({
+  name: String,
+  location: {
+    latitude: Number,
+    longitude: Number,
+  },
+});
+
+app.post('/add-stop', async (req, res) => {
+  const { name, latitude, longitude } = req.body;
+  const stop = new Stop({ name, location: { latitude, longitude } });
+  await stop.save();
+  res.send(stop);
+});
+
+const Stop = mongoose.model('Stop', stopSchema);
+
 const busSchema = new mongoose.Schema({
   name: String,
   location: {
@@ -30,7 +47,6 @@ const busSchema = new mongoose.Schema({
 
 const Bus = mongoose.model('Bus', busSchema);
 
-// Routes
 app.post('/add-bus', async (req, res) => {
   const { name } = req.body;
   const bus = new Bus({ name });
