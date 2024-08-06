@@ -35,7 +35,7 @@ export default function BusList() {
           renderItem={({ item }) => (
             <View style={styles.busItem}>
               <Text style={darkTheme.text}>{item.busNumber}</Text>
-              <Button title="Select" color="#BB86FC" onPress={() => handleBusSelect(item)} />
+              <Button title="Select" color="#00afd6" onPress={() => handleBusSelect(item)} />
             </View>
           )}
         />
@@ -50,6 +50,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#BB86FC',
+    borderBottomColor: '#00afd6',
   },
 });

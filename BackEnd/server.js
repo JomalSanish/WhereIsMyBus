@@ -11,7 +11,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://Aldrin:Kakkanattu47@busdb.fzwwowm.mongodb.net/?retryWrites=true&w=majority&appName=busDB', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://Aldrin:Kakkanattu47@busdb.fzwwowm.mongodb.net/busDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
 const busSchema = new mongoose.Schema({
   busNumber: String,
@@ -28,6 +28,15 @@ const busSchema = new mongoose.Schema({
 
 const Bus = mongoose.model('Bus', busSchema);
 
+// New database connection for bus stops
+const busStopsConnection = mongoose.createConnection('mongodb+srv://Aldrin:Kakkanattu47@busdb.fzwwowm.mongodb.net/busStopsDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+
+const busStopSchema = new mongoose.Schema({
+  name: String
+});
+
+const BusStop = busStopsConnection.model('BusStop', busStopSchema);
+
 // Utility function to process strings
 const formatString = (str) => {
   if (!str) return '';
@@ -35,7 +44,7 @@ const formatString = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
-// Routes
+// Routes for buses
 app.get('/buses', async (req, res) => {
   try {
     let { from, to } = req.query;
@@ -73,6 +82,30 @@ app.delete('/buses/:id', async (req, res) => {
     res.status(204).send();
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// Routes for bus stops
+app.post('/bus-stops', async (req, res) => {
+  const { name } = req.body;
+
+  try {
+    const busStop = new BusStop({ name: formatString(name) });
+    await busStop.save();
+    res.status(201).json(busStop);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.get('/bus-stops', async (req, res) => {
+  const { query } = req.query;
+
+  try {
+    const stops = await BusStop.find({ name: new RegExp(query, 'i') });
+    res.json(stops);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 });
 

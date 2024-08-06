@@ -1,28 +1,18 @@
-import React, { useState } from 'react';
-import { Text, View, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Text, View, TextInput, Button, Alert, StatusBar, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import Fuse from 'fuse.js';
 import { darkTheme } from './styles';
+import { FlatList } from 'react-native-gesture-handler';
 
-const locations = [
-  { name: 'Thodupuzha', coordinates: { latitude: 9.904830930076447, longitude: 76.7053957876071 } },
-  { name: 'Muvattupuzha', coordinates: { latitude: 9.988181678408138, longitude: 76.57284398888918 } },
-  { name: 'Puthenkurish', coordinates: { latitude: 9.976759294723937, longitude: 76.41179573957362 } },
-  { name: 'Thrippunithura', coordinates: { latitude: 9.95017586201997, longitude: 76.3484459302907 } },
-  { name: 'Vyttila', coordinates: { latitude: 9.968573001644026, longitude: 76.31655315755961 } },
-];
-
-const fuse = new Fuse(locations, {
-  keys: ['name'],
-  threshold: 0.25,
-});
 
 export default function HomeScreen() {
   const navigation = useNavigation();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
-  const [fromSuggestions, setFromSuggestions] = useState([]);
-  const [toSuggestions, setToSuggestions] = useState([]);
+  const [fromsuggestions,setfromsuggestions] = useState([]); 
+  const [tosuggestions,settosuggestions] = useState([]); 
+  const [checkfr,setcheckfr] = useState(true);
+  const [checkto,setcheckto] = useState(true);
 
   const handleSearch = () => {
     fetch(`https://modest-rare-pegasus.ngrok-free.app/buses?from=${from}&to=${to}`)
@@ -45,59 +35,123 @@ export default function HomeScreen() {
       });
   };
 
+  //From suggestions
+  const handlefromsuggSearch = () => {
+    fetch(`https://modest-rare-pegasus.ngrok-free.app/bus-stops?query=${from}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.length === 0) {
+          
+        } else {
+          setfromsuggestions(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching bus data:', error);
+      });
+  };
+
+  //To suggestions
+  const handletosuggSearch = () => {
+    fetch(`https://modest-rare-pegasus.ngrok-free.app/bus-stops?query=${to}`)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        if (data.length === 0) {
+          
+        } else {
+          settosuggestions(data);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching bus data:', error);
+      });
+  };
+
   const handleFromChange = (text) => {
     setFrom(text);
-    setFromSuggestions(fuse.search(text).map(result => result.item.name));
+    handlefromsuggSearch();
   };
 
   const handleToChange = (text) => {
     setTo(text);
-    setToSuggestions(fuse.search(text).map(result => result.item.name));
+    handletosuggSearch();
   };
+
+  useEffect(() =>{
+    StatusBar.setBarStyle("light-content", true);
+    StatusBar.setBackgroundColor("#121212", true);
+  })
 
   return (
     <View style={darkTheme.container}>
-      <Text style={darkTheme.text}>Enter the 'from' and 'to' locations:</Text>
-      <TextInput
-        style={darkTheme.input}
-        placeholder="From"
-        placeholderTextColor="#BB86FC"
-        value={from}
-        onChangeText={handleFromChange}
-      />
-      {fromSuggestions.length > 0 && (
-        <View style={styles.suggestions}>
-          {fromSuggestions.map((suggestion, index) => (
-            <Text key={index} style={darkTheme.text}>{suggestion}</Text>
-          ))}
+      <View>
+        <Text style={darkTheme.text}>Enter the 'From' and 'To' locations:</Text>
+        <TextInput
+          onPressIn={() => setcheckfr(true)}
+          onEndEditing={() => setcheckfr(false)}
+          style={darkTheme.input}
+          placeholder="From"
+          placeholderTextColor="#00afd6"
+          value={from}
+          onChangeText={handleFromChange}
+          clearButtonMode='always'
+        />
+      </View>
+      <View>
+        {
+          checkfr && from !== ""
+          &&
+          <View style={{alignItems: "center", width: "100%", height: 70, zIndex: 10, position: "absolute"}}>
+            {
+              fromsuggestions.map((fromsugg) => {
+                return(
+                  <TouchableOpacity onPress={() => setFrom(fromsugg.name)} key={fromsugg._id} style={{backgroundColor: "#121212", padding:10, borderColor: "#00afd6", borderWidth: 1, width: "100%", borderRadius: 6}}>
+                  <Text style={{color: "#00afd6"}}>{fromsugg.name}</Text>
+                  </TouchableOpacity>
+                )
+              })
+            }
+          </View>
+        }
+        <TextInput
+          onPressIn={() => setcheckto(true)}
+          onEndEditing={() => setcheckto(false)}
+          style={darkTheme.input2}
+          placeholder="To"
+          placeholderTextColor="#00afd6"
+          value={to}
+          onChangeText={handleToChange}
+          clearButtonMode='always'
+        />
+        <View>
+        {
+          checkto && to !== ""
+          &&
+          <View style={{alignItems: "center", width: "100%", height: 70, zIndex: 10, position: "absolute", top: -21}}>
+            {
+              tosuggestions.map((tosugg) => {
+                return(
+                  <TouchableOpacity onPress={() => setTo(tosugg.name)} key={tosugg._id} style={{backgroundColor: "#121212", padding:10, borderColor: "#00afd6", borderWidth: 1, width: "100%", borderRadius: 6}}>
+                  <Text style={{color: "#00afd6"}}>{tosugg.name}</Text>
+                  </TouchableOpacity>
+                )
+              })
+            }
         </View>
-      )}
-      <TextInput
-        style={darkTheme.input}
-        placeholder="To"
-        placeholderTextColor="#BB86FC"
-        value={to}
-        onChangeText={handleToChange}
-      />
-      {toSuggestions.length > 0 && (
-        <View style={styles.suggestions}>
-          {toSuggestions.map((suggestion, index) => (
-            <Text key={index} style={darkTheme.text}>{suggestion}</Text>
-          ))}
-        </View>
-      )}
-      <Button title="Search" color="#BB86FC" onPress={handleSearch} />
-    </View>
+        }
+      </View>
+        <Button title="Search" color="#00afd6" onPress={handleSearch} />
+      </View>
+      </View>
   );
 }
-
-const styles = StyleSheet.create({
-  suggestions: {
-    backgroundColor: '#121212',
-    padding: 10,
-    borderColor: '#BB86FC',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginVertical: 10,
-  },
-});
