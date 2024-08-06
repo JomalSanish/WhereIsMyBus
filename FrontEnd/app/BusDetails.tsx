@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, Alert } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, Alert, Button, Linking } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import MapViewDirections from 'react-native-maps-directions';
 import { darkTheme } from './styles';
-
-const GOOGLE_MAPS_APIKEY = 'YAIzaSyBkxaKV_ajJBVqmYOMCmvilMBH5Z1Vps7M'; // Replace with your Google Maps API Key
 
 export default function BusDetails() {
   const route = useRoute();
@@ -74,6 +70,10 @@ export default function BusDetails() {
     );
   }
 
+  const handlepress = () => {
+    Linking.openURL("https://maps.google.com/?q=" + nearestStop.latitude + "," + nearestStop.longitude);
+  };
+
   return (
     <View style={darkTheme.container}>
       <Text style={darkTheme.title}>{bus.name} Current Location</Text>
@@ -92,21 +92,7 @@ export default function BusDetails() {
           </View>
         )}
       />
-      <MapView style={styles.map} initialRegion={currentLocation}>
-        <Marker coordinate={currentLocation} />
-        {nearestStop && (
-          <>
-            <Marker coordinate={nearestStop} pinColor="blue" />
-            <MapViewDirections
-              origin={currentLocation}
-              destination={nearestStop}
-              apikey={GOOGLE_MAPS_APIKEY}
-              strokeWidth={3}
-              strokeColor="blue"
-            />
-          </>
-        )}
-      </MapView>
+      <Button title={"Show Nearest Stop"} color="#00afd6" onPress={handlepress}></Button>
     </View>
   );
 }
@@ -117,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#BB86FC',
+    borderBottomColor: '#00afd6',
   },
   icon: {
     width: 24,
