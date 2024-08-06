@@ -1,30 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const DeveloperScreen = () => {
+  const navigation = useNavigation();
   const [busStopName, setBusStopName] = useState('');
   const [longitude, setLongitude] = useState('');
   const [latitude, setLatitude] = useState('');
   const [stops, setStops] = useState([]);
 
   useEffect(() => {
-    fetchStops();
-  }, []);
-
-  const fetchStops = () => {
     axios.get('http://192.168.15.130:3000/stops')
       .then(response => setStops(response.data))
       .catch(error => console.error(error));
-  };
+  }, []);
 
   const addStop = () => {
-    if (busStopName.trim() !== '' && longitude.trim() !== '' && latitude.trim() !== '') {
-      axios.post('http://192.168.15.130:3000/add-stop', { 
-        name: busStopName, 
-        longitude: parseFloat(longitude),
-        latitude: parseFloat(latitude) 
-      })
+    if (busStopName.trim() && longitude.trim() && latitude.trim()) {
+      axios.post('http://192.168.15.130:3000/add-stop', { name: busStopName, longitude, latitude })
         .then(response => {
           setStops([...stops, response.data]);
           setBusStopName('');
@@ -59,22 +53,19 @@ const DeveloperScreen = () => {
         placeholder="Longitude"
         value={longitude}
         onChangeText={setLongitude}
-        keyboardType="numeric"
       />
       <TextInput
         style={styles.input}
         placeholder="Latitude"
         value={latitude}
         onChangeText={setLatitude}
-        keyboardType="numeric"
       />
       <Button title="Add" onPress={addStop} />
-
       <FlatList
         data={stops}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <View style={styles.stopItem}>
+          <View style={styles.busItem}>
             <Text>{item.name}</Text>
             <TouchableOpacity onPress={() => deleteStop(item._id)}>
               <Text style={styles.deleteButton}>X</Text>
@@ -83,6 +74,7 @@ const DeveloperScreen = () => {
         )}
         style={styles.list}
       />
+      <Button title="Add New Route" onPress={() => navigation.navigate('CreateRoute')} />
     </View>
   );
 };
@@ -106,7 +98,7 @@ const styles = StyleSheet.create({
     marginTop: 20,
     width: '80%',
   },
-  stopItem: {
+  busItem: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',

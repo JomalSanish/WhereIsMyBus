@@ -20,6 +20,15 @@ mongoose.connect(uri)
     console.error('Error connecting to MongoDB:', error);
   });
 
+// Define schemas
+const stopSchema = new mongoose.Schema({
+  name: String,
+  location: {
+    latitude: Number,
+    longitude: Number,
+  },
+});
+
 const busSchema = new mongoose.Schema({
   name: String,
   location: {
@@ -28,16 +37,37 @@ const busSchema = new mongoose.Schema({
   },
 });
 
-const stopSchema = new mongoose.Schema({
-  name: String,
-  longitude: Number,
-  latitude: Number,
+const routeSchema = new mongoose.Schema({
+  title: String,
+  stops: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Stop' }],
 });
 
-const Bus = mongoose.model('Bus', busSchema);
+// Define models
 const Stop = mongoose.model('Stop', stopSchema);
+const Bus = mongoose.model('Bus', busSchema);
+const Route = mongoose.model('Route', routeSchema);
 
-// Routes for buses
+// Routes
+app.post('/add-stop', async (req, res) => {
+  const { name, longitude, latitude } = req.body;
+  const stop = new Stop({ name, location: { longitude, latitude } });
+  await stop.save();
+  res.send(stop);
+});
+
+app.delete('/delete-stop/:id', async (req, res) => {
+  const { id } = req.params;
+  await Stop.findByIdAndDelete(id);
+  res.send({ message: 'Stop deleted successfully' });
+});
+
+app.post('/add-route', async (req, res) => {
+  const { title, stops } = req.body;
+  const route = new Route({ title, stops });
+  await route.save();
+  res.send(route);
+});
+
 app.post('/add-bus', async (req, res) => {
   const { name } = req.body;
   const bus = new Bus({ name });
@@ -66,23 +96,9 @@ app.delete('/delete-bus/:id', async (req, res) => {
   res.send({ message: 'Bus deleted successfully' });
 });
 
-// Routes for stops
-app.post('/add-stop', async (req, res) => {
-  const { name, longitude, latitude } = req.body;
-  const stop = new Stop({ name, longitude, latitude });
-  await stop.save();
-  res.send(stop);
-});
-
 app.get('/stops', async (req, res) => {
   const stops = await Stop.find();
   res.send(stops);
-});
-
-app.delete('/delete-stop/:id', async (req, res) => {
-  const { id } = req.params;
-  await Stop.findByIdAndDelete(id);
-  res.send({ message: 'Stop deleted successfully' });
 });
 
 app.listen(port, () => {
