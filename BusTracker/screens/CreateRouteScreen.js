@@ -1,42 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Button, StyleSheet } from 'react-native';
+import { View, Text, Button, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
 
 const CreateRouteScreen = ({ navigation }) => {
   const [stops, setStops] = useState([]);
   const [selectedStops, setSelectedStops] = useState([]);
-  
+  const [selectedButton, setSelectedButton] = useState(null);
+
   useEffect(() => {
     axios.get('http://192.168.15.130:3000/stops')
       .then(response => setStops(response.data))
       .catch(error => console.error(error));
   }, []);
 
-  const handleSelectStop = (stop) => {
-    let updatedStops = [...selectedStops];
-    if (updatedStops.includes(stop._id)) {
-      updatedStops = updatedStops.filter(id => id !== stop._id);
+  const handleStopClick = (stop) => {
+    const index = selectedStops.findIndex(item => item._id === stop._id);
+    if (index === -1) {
+      setSelectedStops([...selectedStops, { ...stop, number: selectedStops.length + 1 }]);
     } else {
-      updatedStops.push(stop._id);
+      const newSelectedStops = selectedStops.filter(item => item._id !== stop._id);
+      setSelectedStops(newSelectedStops.map((item, i) => ({ ...item, number: i + 1 })));
     }
-    setSelectedStops(updatedStops);
   };
 
-  const handleSaveRoute = () => {
-    if (selectedStops.length < 2) {
-      alert('Select at least two stops to create a route');
+  const handleSave = () => {
+    if (selectedStops.length === 0) {
+      Alert.alert('Error', 'No stops selected');
       return;
     }
 
-    const orderedStops = stops
-      .filter(stop => selectedStops.includes(stop._id))
-      .sort((a, b) => selectedStops.indexOf(a._id) - selectedStops.indexOf(b._id));
-    
-    const routeTitle = `${orderedStops[0].name} - ${orderedStops[orderedStops.length - 1].name}`;
+    if (!selectedButton) {
+      Alert.alert('Error', 'Please select a route type');
+      return;
+    }
 
-    axios.post('http://192.168.15.130:3000/add-route', { title: routeTitle, stops: orderedStops })
+    const routeTitle = `${selectedStops[0].name}-${selectedStops[selectedStops.length - 1].name} (${selectedButton})`;
+
+    axios.post('http://192.168.15.130:3000/add-route', {
+      title: routeTitle,
+      stops: selectedStops,
+    })
       .then(response => {
-        alert('Route saved successfully');
+        Alert.alert('Success', 'Route saved successfully');
         navigation.goBack();
       })
       .catch(error => console.error(error));
@@ -44,21 +49,45 @@ const CreateRouteScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text>Select Stops for the Route</Text>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={[styles.button, selectedButton === 'FP' && styles.selectedButton]}
+          onPress={() => setSelectedButton('FP')}
+        >
+          <Text style={styles.buttonText}>FP</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, selectedButton === 'Ordinary' && styles.selectedButton]}
+          onPress={() => setSelectedButton('Ordinary')}
+        >
+          <Text style={styles.buttonText}>Ordinary</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.button, selectedButton === 'LS' && styles.selectedButton]}
+          onPress={() => setSelectedButton('LS')}
+        >
+          <Text style={styles.buttonText}>LS</Text>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={stops}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => handleSelectStop(item)} style={styles.stopItem}>
+          <TouchableOpacity
+            style={styles.stopItem}
+            onPress={() => handleStopClick(item)}
+          >
             <Text>{item.name}</Text>
-            {selectedStops.includes(item._id) && (
-              <Text style={styles.number}>{selectedStops.indexOf(item._id) + 1}</Text>
+            {selectedStops.find(stop => stop._id === item._id) && (
+              <Text style={styles.stopNumber}>
+                {selectedStops.find(stop => stop._id === item._id).number}
+              </Text>
             )}
           </TouchableOpacity>
         )}
         style={styles.list}
       />
-      <Button title="Save Route" onPress={handleSaveRoute} />
+      <Button title="Save" onPress={handleSave} />
     </View>
   );
 };
@@ -66,28 +95,38 @@ const CreateRouteScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
   },
-  stopItem: {
+  buttonContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  button: {
+    padding: 10,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'gray',
+    backgroundColor: 'white',
+  },
+  selectedButton: {
+    backgroundColor: 'lightblue',
+  },
+  buttonText: {
+    fontSize: 16,
+  },
+  list: {
+    marginBottom: 16,
+  },
+  stopItem: {
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
-    width: '80%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
-  number: {
-    backgroundColor: 'lightgray',
-    borderRadius: 12,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  list: {
-    marginTop: 20,
-    width: '100%',
+  stopNumber: {
+    fontWeight: 'bold',
   },
 });
 
