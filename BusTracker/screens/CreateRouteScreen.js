@@ -38,7 +38,11 @@ const CreateRouteScreen = ({ navigation }) => {
 
     axios.post('http://192.168.15.130:3000/add-route', {
       title: routeTitle,
-      stops: selectedStops,
+      stops: selectedStops.map(stop => ({
+        _id: stop._id,
+        name: stop.name,
+        number: stop.number
+      })),
     })
       .then(response => {
         Alert.alert('Success', 'Route saved successfully');
