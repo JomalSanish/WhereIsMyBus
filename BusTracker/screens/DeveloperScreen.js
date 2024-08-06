@@ -1,39 +1,80 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const DeveloperScreen = () => {
-  const [busName, setBusName] = useState('');
-  const [buses, setBuses] = useState([]);
+  const navigation = useNavigation();
+  const [busStopName, setBusStopName] = useState('');
+  const [longitude, setLongitude] = useState('');
+  const [latitude, setLatitude] = useState('');
+  const [stops, setStops] = useState([]);
 
-  const addBus = () => {
-    if (busName.trim() !== '') {
-      axios.post('http://192.168.20.130:3000/add-bus', { name: busName })
+  useEffect(() => {
+    axios.get('http://192.168.15.130:3000/stops')
+      .then(response => setStops(response.data))
+      .catch(error => console.error(error));
+  }, []);
+
+  const addStop = () => {
+    if (busStopName.trim() && longitude.trim() && latitude.trim()) {
+      axios.post('http://192.168.15.130:3000/add-stop', { name: busStopName, longitude, latitude })
         .then(response => {
-          setBuses([...buses, response.data]);
-          setBusName('');
+          setStops([...stops, response.data]);
+          setBusStopName('');
+          setLongitude('');
+          setLatitude('');
         })
         .catch(error => console.error(error));
     } else {
-      alert('Bus name cannot be empty');
+      alert('All fields are required');
     }
+  };
+
+  const deleteStop = (id) => {
+    axios.delete(`http://192.168.15.130:3000/delete-stop/${id}`)
+      .then(() => {
+        setStops(stops.filter(stop => stop._id !== id));
+      })
+      .catch(error => console.error(error));
   };
 
   return (
     <View style={styles.container}>
-      <Text>Add a New Bus</Text>
+      <Text>Add a New Bus Stop</Text>
       <TextInput
         style={styles.input}
-        placeholder="Bus Name"
-        value={busName}
-        onChangeText={setBusName}
+        placeholder="Bus Stop Name"
+        value={busStopName}
+        onChangeText={setBusStopName}
       />
-      <Button title="Add" onPress={addBus} />
+      <TextInput
+        style={styles.input}
+        placeholder="Longitude"
+        value={longitude}
+        onChangeText={setLongitude}
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="Latitude"
+        value={latitude}
+        onChangeText={setLatitude}
+      />
+      <Button title="Add" onPress={addStop} />
       <FlatList
-        data={buses}
-        renderItem={({ item }) => <Text>{item.name}</Text>}
+        data={stops}
+        keyExtractor={(item) => item._id}
+        renderItem={({ item }) => (
+          <View style={styles.busItem}>
+            <Text>{item.name}</Text>
+            <TouchableOpacity onPress={() => deleteStop(item._id)}>
+              <Text style={styles.deleteButton}>X</Text>
+            </TouchableOpacity>
+          </View>
+        )}
         style={styles.list}
       />
+      <Button title="Add New Route" onPress={() => navigation.navigate('CreateRoute')} />
     </View>
   );
 };
@@ -56,6 +97,18 @@ const styles = StyleSheet.create({
   list: {
     marginTop: 20,
     width: '80%',
+  },
+  busItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  deleteButton: {
+    color: 'red',
+    fontWeight: 'bold',
   },
 });
 

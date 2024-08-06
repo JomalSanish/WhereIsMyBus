@@ -6,9 +6,11 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if ((loginId === 'driver' || loginId === 'Driver' || loginId === 'Driver ') && (password === 'alan123' || password === 'Alan123')) {
+    if ((loginId === 'driver' || loginId === 'driver ' || loginId === 'Driver' || loginId === 'Driver ') && (password === 'alan123' || password === 'Alan123')) {
       navigation.navigate('Driver');
-    } else if ((loginId === 'developer' || loginId === 'Developer' || loginId === 'Developer ') && (password === 'jomal123' || password === 'Jomal123')) {
+    } else if ((loginId === 'admin' || loginId === 'admin ' || loginId === 'Admin' || loginId === 'Admin ') && (password === 'jomal123' || password === 'Jomal123')) {
+      navigation.navigate('Admin');
+    } else if ((loginId === 'developer' || loginId === 'developer ' || loginId === 'Developer' || loginId === 'Developer ') && (password === 'aldrin123' || password === 'Aldrin123')) {
       navigation.navigate('Developer');
     } else {
       alert('Invalid credentials');
