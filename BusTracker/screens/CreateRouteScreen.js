@@ -53,7 +53,7 @@ const CreateRouteScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add a New Bus Stop</Text>
+      <Text style={styles.title}>Add a new bus stop</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, selectedButton === 'FP' && styles.selectedButton]}
