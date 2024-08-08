@@ -4,10 +4,13 @@ import axios from 'axios';
 
 const AdminScreen = () => {
   const [busName, setBusName] = useState('');
+  const [selectedRoute, setSelectedRoute] = useState(null);
   const [buses, setBuses] = useState([]);
+  const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
     fetchBuses();
+    fetchRoutes();
   }, []);
 
   const fetchBuses = () => {
@@ -16,17 +19,25 @@ const AdminScreen = () => {
       .catch(error => console.error(error));
   };
 
+  const fetchRoutes = () => {
+    axios.get('http://192.168.15.130:3000/routes')
+      .then(response => setRoutes(response.data))
+      .catch(error => console.error(error));
+  };
+
   const addBus = () => {
-    if (busName.trim() !== '') {
-      axios.post('http://192.168.15.130:3000/add-bus', { name: busName })
+    if (busName.trim() !== '' && selectedRoute) {
+      const formattedBusName = `${busName} ${selectedRoute.title}`;
+      axios.post('http://192.168.15.130:3000/add-bus', { name: formattedBusName })
         .then(response => {
           setBuses([...buses, response.data]);
           setBusName('');
-          Alert.alert('Success', `Bus "${busName}" has been added.`);
+          setSelectedRoute(null);
+          Alert.alert('Success', `Bus "${formattedBusName}" has been added.`);
         })
         .catch(error => console.error(error));
     } else {
-      Alert.alert('Error', 'Bus name cannot be empty');
+      Alert.alert('Error', 'Please enter a bus name and select a route.');
     }
   };
 
@@ -56,27 +67,49 @@ const AdminScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Add a New Bus</Text>
       <TextInput
         style={styles.input}
         placeholder="Bus Name"
         value={busName}
         onChangeText={setBusName}
       />
-      <Button title="Add" onPress={addBus} />
-      <FlatList
-        data={buses}
-        keyExtractor={(item) => item._id}
-        renderItem={({ item }) => (
-          <View style={styles.busItem}>
-            <Text>{item.name}</Text>
-            <TouchableOpacity onPress={() => deleteBus(item._id, item.name)}>
-              <Text style={styles.deleteButton}>X</Text>
+      
+      <View style={styles.routesContainer}>
+        <Text style={styles.heading}>Routes List</Text>
+        <FlatList
+          data={routes}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              style={[
+                styles.routeItem,
+                selectedRoute?._id === item._id && styles.selectedRouteItem
+              ]}
+              onPress={() => setSelectedRoute(item)}
+            >
+              <Text>{item.title}</Text>
             </TouchableOpacity>
-          </View>
-        )}
-        style={styles.list}
-      />
+          )}
+        />
+      </View>
+
+      <Button title="Add" onPress={addBus} />
+      
+      <View style={styles.busesContainer}>
+        <Text style={styles.heading}>Buses List</Text>
+        <FlatList
+          data={buses}
+          keyExtractor={(item) => item._id}
+          renderItem={({ item }) => (
+            <View style={styles.busItem}>
+              <Text>{item.name}</Text>
+              <TouchableOpacity onPress={() => deleteBus(item._id, item.name)}>
+                <Text style={styles.deleteButton}>X</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        />
+      </View>
     </View>
   );
 };
@@ -84,8 +117,6 @@ const AdminScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     padding: 16,
   },
   input: {
@@ -94,11 +125,27 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 12,
     paddingHorizontal: 8,
-    width: '80%',
+    width: '100%',
   },
-  list: {
+  routesContainer: {
+    marginBottom: 12,
+  },
+  busesContainer: {
     marginTop: 20,
-    width: '80%',
+    flex: 1,
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  routeItem: {
+    padding: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  selectedRouteItem: {
+    backgroundColor: '#e0e0e0', // Highlight color for selected route
   },
   busItem: {
     flexDirection: 'row',
