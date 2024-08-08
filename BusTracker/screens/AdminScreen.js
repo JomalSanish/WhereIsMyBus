@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
 
 const AdminScreen = () => {
@@ -22,19 +22,36 @@ const AdminScreen = () => {
         .then(response => {
           setBuses([...buses, response.data]);
           setBusName('');
+          Alert.alert('Success', `Bus "${busName}" has been added.`);
         })
         .catch(error => console.error(error));
     } else {
-      alert('Bus name cannot be empty');
+      Alert.alert('Error', 'Bus name cannot be empty');
     }
   };
 
-  const deleteBus = (id) => {
-    axios.delete(`http://192.168.15.130:3000/delete-bus/${id}`)
-      .then(() => {
-        setBuses(buses.filter(bus => bus._id !== id));
-      })
-      .catch(error => console.error(error));
+  const deleteBus = (id, name) => {
+    Alert.alert(
+      'Confirm Delete',
+      `Are you sure you want to delete the bus "${name}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            axios.delete(`http://192.168.15.130:3000/delete-bus/${id}`)
+              .then(() => {
+                setBuses(buses.filter(bus => bus._id !== id));
+                Alert.alert('Success', `Bus "${name}" has been removed.`);
+              })
+              .catch(error => console.error(error));
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -53,7 +70,7 @@ const AdminScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.busItem}>
             <Text>{item.name}</Text>
-            <TouchableOpacity onPress={() => deleteBus(item._id)}>
+            <TouchableOpacity onPress={() => deleteBus(item._id, item.name)}>
               <Text style={styles.deleteButton}>X</Text>
             </TouchableOpacity>
           </View>

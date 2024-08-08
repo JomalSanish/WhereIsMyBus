@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 
@@ -24,19 +24,36 @@ const DeveloperScreen = () => {
           setBusStopName('');
           setLongitude('');
           setLatitude('');
+          Alert.alert('Success', `Bus stop "${busStopName}" has been added.`);
         })
         .catch(error => console.error(error));
     } else {
-      alert('All fields are required');
+      Alert.alert('Error', 'All fields are required');
     }
   };
 
-  const deleteStop = (id) => {
-    axios.delete(`http://192.168.15.130:3000/delete-stop/${id}`)
-      .then(() => {
-        setStops(stops.filter(stop => stop._id !== id));
-      })
-      .catch(error => console.error(error));
+  const deleteStop = (id, name) => {
+    Alert.alert(
+      'Confirm Delete',
+      `Are you sure you want to delete the bus stop "${name}"?`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel'
+        },
+        {
+          text: 'OK',
+          onPress: () => {
+            axios.delete(`http://192.168.15.130:3000/delete-stop/${id}`)
+              .then(() => {
+                setStops(stops.filter(stop => stop._id !== id));
+                Alert.alert('Success', `Bus stop "${name}" has been removed.`);
+              })
+              .catch(error => console.error(error));
+          }
+        }
+      ]
+    );
   };
 
   return (
@@ -67,7 +84,7 @@ const DeveloperScreen = () => {
         renderItem={({ item }) => (
           <View style={styles.busItem}>
             <Text>{item.name}</Text>
-            <TouchableOpacity onPress={() => deleteStop(item._id)}>
+            <TouchableOpacity onPress={() => deleteStop(item._id, item.name)}>
               <Text style={styles.deleteButton}>X</Text>
             </TouchableOpacity>
           </View>
