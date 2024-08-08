@@ -58,7 +58,7 @@ const DeveloperScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text>Add a New Bus Stop</Text>
+      <Text style={styles.title}>Add a new bus stop</Text>
       <TextInput
         style={styles.input}
         placeholder="Bus Stop Name"
@@ -78,13 +78,15 @@ const DeveloperScreen = () => {
         onChangeText={setLatitude}
       />
       <Button title="Add" onPress={addStop} />
+      
+      <Text style={styles.heading}>Stops List</Text>
       <FlatList
         data={stops}
         keyExtractor={(item) => item._id}
         renderItem={({ item }) => (
           <View style={styles.busItem}>
             <Text>{item.name}</Text>
-            <TouchableOpacity onPress={() => deleteStop(item._id, item.name)}>
+            <TouchableOpacity onPress={() => deleteStop(item._id, item.name)}style={styles.deleteButtonContainer}>
               <Text style={styles.deleteButton}>X</Text>
             </TouchableOpacity>
           </View>
@@ -112,8 +114,18 @@ const styles = StyleSheet.create({
     width: '80%',
   },
   list: {
-    marginTop: 20,
+    marginTop: 3,
     width: '80%',
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 30,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 1,
   },
   busItem: {
     flexDirection: 'row',
@@ -122,6 +134,15 @@ const styles = StyleSheet.create({
     padding: 10,
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
+  },
+  deleteButtonContainer: {
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 5,
+    padding: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
   },
   deleteButton: {
     color: 'red',

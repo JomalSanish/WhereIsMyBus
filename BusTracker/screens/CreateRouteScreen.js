@@ -53,6 +53,7 @@ const CreateRouteScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Add a New Bus Stop</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, selectedButton === 'FP' && styles.selectedButton]}
@@ -73,6 +74,7 @@ const CreateRouteScreen = ({ navigation }) => {
           <Text style={styles.buttonText}>LS</Text>
         </TouchableOpacity>
       </View>
+      <Text style={styles.heading}>Stops List</Text>
       <FlatList
         data={stops}
         keyExtractor={(item) => item._id}
@@ -104,7 +106,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   button: {
     padding: 10,
@@ -121,6 +123,18 @@ const styles = StyleSheet.create({
   },
   list: {
     marginBottom: 16,
+  },
+  heading: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 10,
+    marginBottom: 5
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 1,
+    marginBottom: 15,
   },
   stopItem: {
     padding: 10,

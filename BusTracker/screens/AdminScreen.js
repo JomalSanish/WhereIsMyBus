@@ -67,6 +67,7 @@ const AdminScreen = () => {
 
   return (
     <View style={styles.container}>
+      <Text style={styles.title}>Add a new bus</Text>
       <TextInput
         style={styles.input}
         placeholder="Bus Name"
@@ -75,7 +76,7 @@ const AdminScreen = () => {
       />
       
       <View style={styles.routesContainer}>
-        <Text style={styles.heading}>Routes List</Text>
+        <Text style={styles.heading}>Select a route</Text>
         <FlatList
           data={routes}
           keyExtractor={(item) => item._id}
@@ -103,7 +104,7 @@ const AdminScreen = () => {
           renderItem={({ item }) => (
             <View style={styles.busItem}>
               <Text>{item.name}</Text>
-              <TouchableOpacity onPress={() => deleteBus(item._id, item.name)}>
+              <TouchableOpacity onPress={() => deleteBus(item._id, item.name)} style={styles.deleteButtonContainer}>
                 <Text style={styles.deleteButton}>X</Text>
               </TouchableOpacity>
             </View>
@@ -118,6 +119,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 12,
   },
   input: {
     height: 40,
@@ -145,7 +151,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'gray',
   },
   selectedRouteItem: {
-    backgroundColor: '#e0e0e0', // Highlight color for selected route
+    backgroundColor: '#e0e0e0',
   },
   busItem: {
     flexDirection: 'row',
@@ -155,9 +161,19 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: 'gray',
   },
+  deleteButtonContainer: {
+    borderWidth: 1,
+    borderColor: 'white',
+    borderRadius: 5,
+    padding: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'white',
+  },
   deleteButton: {
     color: 'red',
     fontWeight: 'bold',
+    fontSize: 18,
   },
 });
 
