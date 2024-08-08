@@ -114,6 +114,16 @@ app.get('/stops', async (req, res) => {
   res.send(stops);
 });
 
+app.get('/routes', async (req, res) => {
+  try {
+    const routes = await Route.find();
+    res.send(routes);
+  } catch (error) {
+    console.error('Error fetching routes:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
