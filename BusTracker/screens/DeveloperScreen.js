@@ -17,7 +17,7 @@ const DeveloperScreen = () => {
   }, []);
 
   const addStop = () => {
-    if (busStopName.trim() && longitude.trim() && latitude.trim()) {
+    if (busStopName.trim() && !isNaN(parseFloat(longitude)) && !isNaN(parseFloat(latitude))) {
       axios.post('http://192.168.15.130:3000/add-stop', { name: busStopName, longitude, latitude })
         .then(response => {
           setStops([...stops, response.data]);
@@ -28,7 +28,7 @@ const DeveloperScreen = () => {
         })
         .catch(error => console.error(error));
     } else {
-      Alert.alert('Error', 'All fields are required');
+      Alert.alert('Error', 'All fields are required and longitude/latitude must be valid numbers');
     }
   };
 

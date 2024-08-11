@@ -27,7 +27,7 @@ const AdminScreen = () => {
 
   const addBus = () => {
     if (busName.trim() !== '' && selectedRoute) {
-      const formattedBusName = `${busName} ${selectedRoute.title}`;
+      const formattedBusName = `${busName.trim()} ${selectedRoute.title}`;
       axios.post('http://192.168.15.130:3000/add-bus', { name: formattedBusName })
         .then(response => {
           setBuses([...buses, response.data]);

@@ -6,16 +6,20 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
 
   const handleLogin = () => {
-    if ((loginId === 'driver' || loginId === 'driver ' || loginId === 'Driver' || loginId === 'Driver ') && (password === 'alan123' || password === 'Alan123')) {
-      navigation.navigate('Driver');
-    } else if ((loginId === 'admin' || loginId === 'admin ' || loginId === 'Admin' || loginId === 'Admin ') && (password === 'jomal123' || password === 'Jomal123')) {
-      navigation.navigate('Admin');
-    } else if ((loginId === 'developer' || loginId === 'developer ' || loginId === 'Developer' || loginId === 'Developer ') && (password === 'aldrin123' || password === 'Aldrin123')) {
-      navigation.navigate('Developer');
+    const lowerLoginId = loginId.trim().toLowerCase();
+    const lowerPassword = password.trim();
+  
+    if (
+      (lowerLoginId === 'driver' && (lowerPassword === 'alan123' || lowerPassword === 'Alan123')) ||
+      (lowerLoginId === 'admin' && (lowerPassword === 'jomal123' || lowerPassword === 'Jomal123')) ||
+      (lowerLoginId === 'developer' && (lowerPassword === 'aldrin123' || lowerPassword === 'Aldrin123'))
+    ) {
+      navigation.navigate(lowerLoginId.charAt(0).toUpperCase() + lowerLoginId.slice(1));
     } else {
       alert('Invalid credentials');
     }
   };
+  
 
   return (
     <View style={styles.container}>
