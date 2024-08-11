@@ -39,11 +39,11 @@ const busSchema = new mongoose.Schema({
 
 const routeSchema = new mongoose.Schema({
   title: String,
-  stops: [{
-    _id: mongoose.Schema.Types.ObjectId,
-    name: String,
-    number: Number
-  }],
+  stops: [
+    {
+      name: String
+    }
+  ]
 });
 
 // Define models
@@ -68,17 +68,18 @@ app.delete('/delete-stop/:id', async (req, res) => {
 app.post('/add-route', async (req, res) => {
   const { title, stops } = req.body;
 
-  const route = new Route({
-    title,
-    stops: stops.map(stop => ({
-      _id: stop._id,
-      name: stop.name,
-      number: stop.number
-    }))
-  });
-
-  await route.save();
-  res.send(route);
+  try {
+    const route = new Route({
+      title,
+      stops: stops.map(stop => ({
+        name: stop.name
+      }))
+    });
+    await route.save();
+    res.send(route);
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding route', error });
+  }
 });
 
 app.post('/add-bus', async (req, res) => {

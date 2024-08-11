@@ -39,7 +39,6 @@ const CreateRouteScreen = ({ navigation }) => {
     axios.post('http://192.168.15.130:3000/add-route', {
       title: routeTitle,
       stops: selectedStops.map(stop => ({
-        _id: stop._id,
         name: stop.name,
         number: stop.number
       })),
@@ -53,7 +52,7 @@ const CreateRouteScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Add a new bus stop</Text>
+      <Text style={styles.title}>Add a new bus route</Text>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={[styles.button, selectedButton === 'FP' && styles.selectedButton]}
