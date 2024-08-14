@@ -9,19 +9,36 @@ export default function BusList() {
   const { from, to, buses } = route.params;
   const [loading, setLoading] = useState(false);
 
-  const handleBusSelect = (bus) => {
+
+  const handleBusSelect = async (bus) => {
     setLoading(true);
-    const fromIndex = bus.stops.findIndex((stop) => stop.name === from);
-    const toIndex = bus.stops.findIndex((stop) => stop.name === to);
-    const filteredSchedule = bus.stops.slice(
-      Math.min(fromIndex, toIndex),
-      Math.max(fromIndex, toIndex) + 1
-    );
-    setTimeout(() => {
+  
+    try {
+      // Fetch the route details from the backend
+      const response = await fetch(`https://modest-rare-pegasus.ngrok-free.app/routes?route=${bus.route}`);
+      const routeData = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(routeData.error || 'Failed to fetch route data');
+      }
+  
+      // Combine the fetched stops with the bus data
+      const busWithStops = {
+        ...bus,
+        stops: routeData.stops, // This will include both name and location for each stop
+      };
+  
       setLoading(false);
-      navigation.navigate('BusDetails', { bus: { ...bus, schedule: filteredSchedule } });
-    }, 1000);
+      // Navigate to the "BusDetails" page with the complete bus data
+      navigation.navigate('BusDetails', { bus: busWithStops });
+    } catch (error) {
+      setLoading(false);
+      console.error('Error fetching route data:', error);
+      // Handle error (e.g., show an alert to the user)
+    }
   };
+  
+  
 
   return (
     <View style={darkTheme.container}>
@@ -34,7 +51,7 @@ export default function BusList() {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.busItem}>
-              <Text style={darkTheme.text}>{item.busNumber}</Text>
+              <Text style={darkTheme.text}>{item.name}</Text>
               <Button title="Select" color="#00afd6" onPress={() => handleBusSelect(item)} />
             </View>
           )}

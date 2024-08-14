@@ -3,7 +3,6 @@ import { Text, View, TextInput, Button, Alert, StatusBar, TouchableOpacity } fro
 import { useNavigation } from '@react-navigation/native';
 import { darkTheme } from './styles';
 
-
 export default function HomeScreen() {
   const navigation = useNavigation();
   const [from, setFrom] = useState('');
