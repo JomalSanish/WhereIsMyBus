@@ -11,31 +11,53 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://Aldrin:Kakkanattu47@busdb.fzwwowm.mongodb.net/busDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
+mongoose.connect('mongodb+srv://22cs029:1234567890@locations.uavka58.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
-const busSchema = new mongoose.Schema({
-  busNumber: String,
-  stops: [
-    {
-      name: String,
-      coordinates: {
-        latitude: Number,
-        longitude: Number,
-      }
-    }
-  ]
+
+
+
+
+//bus collection
+const busnSchema = new mongoose.Schema({
+  name: String,
+  route: String,
+  location:{
+    latitude: Number,
+    longitude: Number,
+  }
 });
 
-const Bus = mongoose.model('Bus', busSchema);
+const Busn = mongoose.model('buses', busnSchema);
 
-// New database connection for bus stops
-const busStopsConnection = mongoose.createConnection('mongodb+srv://Aldrin:Kakkanattu47@busdb.fzwwowm.mongodb.net/busStopsDB?retryWrites=true&w=majority', { useNewUrlParser: true, useUnifiedTopology: true });
 
-const busStopSchema = new mongoose.Schema({
-  name: String
+const busroutesSchema = new mongoose.Schema({
+  title: String,
+  stops:[{
+    name: String,
+    number: Number,
+  }]
 });
 
-const BusStop = busStopsConnection.model('BusStop', busStopSchema);
+const Busroutes = mongoose.model('routes', busroutesSchema);
+
+
+const busstopsSchema = new mongoose.Schema({
+  name: String,
+  location:{
+    latitude: Number,
+    longitude: Number,
+  }
+});
+
+const Busstops = mongoose.model('stops', busstopsSchema);
+//end of schemas
+
+
+
+
+
+
+
 
 // Utility function to process strings
 const formatString = (str) => {
@@ -50,51 +72,28 @@ app.get('/buses', async (req, res) => {
     let { from, to } = req.query;
     from = formatString(from);
     to = formatString(to);
-    const buses = await Bus.find({
+
+    // Find the routes that contain both from and to in the stops array
+    const routes = await Busroutes.find({
       stops: {
         $all: [
           { $elemMatch: { name: from } },
           { $elemMatch: { name: to } }
         ]
       }
+    }).select('title'); // Only select the title (route name)
+
+    // Extract route titles from the routes array
+    const routeTitles = routes.map(route => route.title);
+
+    // Find buses whose route is in the list of routes
+    const buses = await Busn.find({
+      route: { $in: routeTitles }
     });
+
     res.json(buses);
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-});
-
-app.post('/buses', async (req, res) => {
-  const { busNumber, stops } = req.body;
-
-  try {
-    const bus = new Bus({ busNumber, stops });
-    await bus.save();
-    res.status(201).json(bus);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-app.delete('/buses/:id', async (req, res) => {
-  try {
-    await Bus.findByIdAndDelete(req.params.id);
-    res.status(204).send();
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Routes for bus stops
-app.post('/bus-stops', async (req, res) => {
-  const { name } = req.body;
-
-  try {
-    const busStop = new BusStop({ name: formatString(name) });
-    await busStop.save();
-    res.status(201).json(busStop);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
   }
 });
 
@@ -102,12 +101,45 @@ app.get('/bus-stops', async (req, res) => {
   const { query } = req.query;
 
   try {
-    const stops = await BusStop.find({ name: new RegExp(query, 'i') });
+    const stops = await Busstops.find({ name: new RegExp(query, 'i') });
     res.json(stops);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
+app.get('/routes', async (req, res) => {
+  try {
+    const { route } = req.query;
+
+    // Find the route that matches the given route title
+    const matchingRoute = await Busroutes.findOne({ title: route });
+
+    if (!matchingRoute) {
+      return res.status(404).json({ error: 'Route not found' });
+    }
+
+    // Get detailed stop information (name and location) for each stop in the route
+    const stopsDetails = await Busstops.find({
+      name: { $in: matchingRoute.stops.map(stop => stop.name) }
+    }).select('name location');
+
+    // Combine the original stops array with the detailed stop information
+    const detailedStops = matchingRoute.stops.map(stop => {
+      const detail = stopsDetails.find(detail => detail.name === stop.name);
+      return {
+        name: stop.name,
+        location: detail ? detail.location : null, // Include location if found
+      };
+    });
+
+    res.json({ ...matchingRoute.toObject(), stops: detailedStops });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

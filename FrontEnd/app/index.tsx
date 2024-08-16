@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Text, View, TextInput, Button, Alert, StatusBar, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { darkTheme } from './styles';
-import { FlatList } from 'react-native-gesture-handler';
-
 
 export default function HomeScreen() {
   const navigation = useNavigation();

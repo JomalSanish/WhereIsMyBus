@@ -31,10 +31,10 @@ export default function BusDetails() {
       let nearest = null;
       let minDistance = Infinity;
       for (const stop of bus.stops) {
-        const distance = getDistance(currentLocation, stop.coordinates);
+        const distance = getDistance(currentLocation, stop.location);
         if (distance < minDistance) {
           minDistance = distance;
-          nearest = stop.coordinates;
+          nearest = stop.location;
         }
       }
       setNearestStop(nearest);
