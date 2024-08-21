@@ -92,7 +92,7 @@ export default function BusDetails() {
           </View>
         )}
       />
-      <Button title={"Show Nearest Stop"} color="#00afd6" onPress={handlepress}></Button>
+      <Button title={"Show Nearest Stop"} color="#148f57" onPress={handlepress}></Button>
     </View>
   );
 }
@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#00afd6',
+    borderBottomColor: '#148f57',
   },
   icon: {
     width: 24,

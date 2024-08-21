@@ -4,7 +4,7 @@ import { darkTheme } from './styles';
 
 export default function Help() {
   return (
-    <ScrollView style={darkTheme.container}>
+    <ScrollView style={darkTheme.help}>
       <Text style={darkTheme.text}>Help</Text>
       <View style={styles.faqContainer}>
         <Text style={styles.question}>Q: How to search for a bus?</Text>

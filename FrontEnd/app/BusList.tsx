@@ -42,7 +42,7 @@ export default function BusList() {
 
   return (
     <View style={darkTheme.container}>
-      <Text style={darkTheme.text}>Buses from {from} to {to}</Text>
+      <Text style={darkTheme.textbusdetails}>Buses from "{from}" to "{to}"</Text>
       {loading ? (
         <ActivityIndicator size="large" color="#BB86FC" />
       ) : (
@@ -52,7 +52,7 @@ export default function BusList() {
           renderItem={({ item }) => (
             <View style={styles.busItem}>
               <Text style={darkTheme.text}>{item.name}</Text>
-              <Button title="Select" color="#00afd6" onPress={() => handleBusSelect(item)} />
+              <Button title="Select" color="#148f57" onPress={() => handleBusSelect(item)} />
             </View>
           )}
         />
@@ -67,6 +67,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#00afd6',
+    borderBottomColor: '#148f57',
   },
 });
