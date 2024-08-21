@@ -9,8 +9,8 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// MongoDB connection
-const uri = 'mongodb+srv://22cs029:1234567890@locations.uavka58.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority';
+// Updated MongoDB connection URI
+const uri = 'mongodb+srv://whereismybusapp:whereismybus123@whereismybus.xo0bi.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority&appName=WhereIsMyBus';
 
 mongoose.connect(uri)
   .then(() => {

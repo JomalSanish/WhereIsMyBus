@@ -11,14 +11,14 @@ const DeveloperScreen = () => {
   const [stops, setStops] = useState([]);
 
   useEffect(() => {
-    axios.get('http://192.168.15.130:3000/stops')
+    axios.get('http://192.168.155.130:3000/stops')
       .then(response => setStops(response.data))
       .catch(error => console.error(error));
   }, []);
 
   const addStop = () => {
     if (busStopName.trim() && !isNaN(parseFloat(longitude)) && !isNaN(parseFloat(latitude))) {
-      axios.post('http://192.168.15.130:3000/add-stop', { name: busStopName, longitude, latitude })
+      axios.post('http://192.168.155.130:3000/add-stop', { name: busStopName, longitude, latitude })
         .then(response => {
           setStops([...stops, response.data]);
           setBusStopName('');
@@ -44,7 +44,7 @@ const DeveloperScreen = () => {
         {
           text: 'OK',
           onPress: () => {
-            axios.delete(`http://192.168.15.130:3000/delete-stop/${id}`)
+            axios.delete(`http://192.168.155.130:3000/delete-stop/${id}`)
               .then(() => {
                 setStops(stops.filter(stop => stop._id !== id));
                 Alert.alert('Success', `Bus stop "${name}" has been removed.`);
