@@ -173,8 +173,6 @@ app.get('/routes', async (req, res) => {
 // Search buses between two stops
 app.post('/search-buses', async (req, res) => {
   const { from, to } = req.body;
-  console.log('Searching buses with from:', from, 'to:', to);
-
   try {
     const buses = await BusRoute.find({
       'route.stops.name': { $all: [from, to] }
