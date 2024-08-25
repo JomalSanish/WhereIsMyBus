@@ -8,7 +8,7 @@ const CreateRouteScreen = ({ navigation }) => {
   const [selectedButton, setSelectedButton] = useState(null);
 
   useEffect(() => {
-    axios.get('http://192.168.155.130:3000/stops')
+    axios.get('http://192.168.1.7:3000/stops')
       .then(response => setStops(response.data))
       .catch(error => console.error(error));
   }, []);
@@ -36,7 +36,7 @@ const CreateRouteScreen = ({ navigation }) => {
 
     const routeTitle = `${selectedStops[0].name}-${selectedStops[selectedStops.length - 1].name} (${selectedButton})`;
 
-    axios.post('http://192.168.155.130:3000/add-route', {
+    axios.post('http://192.168.1.7:3000/add-route', {
       title: routeTitle,
       stops: selectedStops.map(stop => ({
         name: stop.name,

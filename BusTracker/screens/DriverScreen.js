@@ -10,7 +10,7 @@ const DriverScreen = () => {
   const [buses, setBuses] = useState([]);
 
   useEffect(() => {
-    axios.get('http://192.168.155.130:3000/buses')
+    axios.get('http://192.168.1.7:3000/buses')
       .then(response => setBuses(response.data))
       .catch(error => console.error(error));
   }, []);
@@ -35,7 +35,7 @@ const DriverScreen = () => {
     let location = await Location.getCurrentPositionAsync({});
     setLocation(location);
 
-    axios.post('http://192.168.155.130:3000/update-location', {
+    axios.post('http://192.168.1.7:3000/update-location', {
       name: selectedBus,
       latitude: location.coords.latitude,
       longitude: location.coords.longitude,
