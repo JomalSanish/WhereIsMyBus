@@ -56,7 +56,7 @@ export const darkTheme = StyleSheet.create({
   drawermenuic: {
     width: 30, 
     height: 30, 
-    top: 28, 
+    top: 25, 
     left: -15,
   },
 });

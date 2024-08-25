@@ -9,6 +9,13 @@ import { Dimensions } from 'react-native';
 import { darkTheme } from './styles';
 import { useNavigation } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
+import Helpicon from '@/assets/Svg/Helpicon';
+import AppIcon from '@/assets/Svg/AppIcon';
+import Mailicon from '@/assets/Svg/Mailicom';
+import Updateicon from '@/assets/Svg/Updateicon';
+import Settingsicon from '@/assets/Svg/Settingsicon';
+import Rateicon from '@/assets/Svg/Rateicon';
+import Abouticon from '@/assets/Svg/Abouticon';
 
 
 const Stack = createStackNavigator();
@@ -41,32 +48,32 @@ export default function AppNavigator() {
     return (
       <View>
         <View style={{height: '17%', backgroundColor: '#121212', padding: 40}}>
-          <Image source={require('../assets/images/Frame 2 4.png')} style={{width: 95, height: 95, top: -7, right: 10}}/>
+          <AppIcon style={{width: 95, height: 95, top: -7, right: 10}}/>
           <Text style={styles.drawermenuhe}>Where's My Bus</Text>
         </View>
         <View style={{height: '100%', backgroundColor: '#148f57', paddingHorizontal: 16}}>
           <TouchableOpacity style={{padding: 20}} onPress={() => navigation.navigate('Help')}>
-            <Image source={require('../assets/images/information.png')} style={darkTheme.drawermenuic}/>
+            <Helpicon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>More Information</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{padding: 20}} onPress={() => navigation.navigate('Contact')}>
-          <Image source={require('../assets/images/envelope.png')} style={darkTheme.drawermenuic}/>
+          <Mailicon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>Contact Us</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{padding: 20}}>
-          <Image source={require('../assets/images/download.png')} style={darkTheme.drawermenuic}/>
+          <Updateicon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>Update Apk</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{padding: 20}}>
-          <Image source={require('../assets/images/settings.png')} style={darkTheme.drawermenuic}/>
+          <Settingsicon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>Settings</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{padding: 20}}>
-          <Image source={require('../assets/images/favorites.png')} style={darkTheme.drawermenuic}/>
+          <Rateicon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>Rate App</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{padding: 20}}>
-          <Image source={require('../assets/images/flag.png')} style={darkTheme.drawermenuic}/>
+          <Abouticon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>More About College</Text>
           </TouchableOpacity>
         </View>
