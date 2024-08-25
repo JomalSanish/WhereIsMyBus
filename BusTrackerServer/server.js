@@ -46,10 +46,27 @@ const routeSchema = new mongoose.Schema({
   ]
 });
 
+const busRouteSchema = new mongoose.Schema({
+  busName: String,
+  route: {
+    title: String,
+    stops: [
+      {
+        name: String,
+        location: {
+          latitude: Number,
+          longitude: Number,
+        }
+      }
+    ]
+  }
+});
+
 // Define models
 const Stop = mongoose.model('Stop', stopSchema);
 const Bus = mongoose.model('Bus', busSchema);
 const Route = mongoose.model('Route', routeSchema);
+const BusRoute = mongoose.model('BusRoute', busRouteSchema);
 
 // Routes
 app.post('/add-stop', async (req, res) => {
@@ -83,10 +100,36 @@ app.post('/add-route', async (req, res) => {
 });
 
 app.post('/add-bus', async (req, res) => {
-  const { name } = req.body;
-  const bus = new Bus({ name });
-  await bus.save();
-  res.send(bus);
+  const { name, routeId } = req.body;
+
+  try {
+    const route = await Route.findById(routeId);
+
+    if (!route) {
+      return res.status(404).json({ message: 'Route not found' });
+    }
+
+    // Save to Bus collection
+    const bus = new Bus({ name });
+    await bus.save();
+
+    // Save to BusRoute collection
+    const busRoute = new BusRoute({
+      busName: name,
+      route: {
+        title: route.title,
+        stops: route.stops.map(stop => ({
+          name: stop.name,
+          location: stop.location,
+        })),
+      }
+    });
+    await busRoute.save();
+
+    res.send({ bus, busRoute });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding bus', error });
+  }
 });
 
 app.post('/update-location', async (req, res) => {

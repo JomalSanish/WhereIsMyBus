@@ -28,12 +28,12 @@ const AdminScreen = () => {
   const addBus = () => {
     if (busName.trim() !== '' && selectedRoute) {
       const formattedBusName = `${busName.trim()} ${selectedRoute.title}`;
-      axios.post('http://192.168.1.7:3000/add-bus', { name: formattedBusName })
+      axios.post('http://192.168.1.7:3000/add-bus', { name: formattedBusName, routeId: selectedRoute._id })
         .then(response => {
-          setBuses([...buses, response.data]);
+          setBuses([...buses, response.data.bus]);
           setBusName('');
           setSelectedRoute(null);
-          Alert.alert('Success', `Bus "${formattedBusName}" has been added.`);
+          Alert.alert('Success', `Bus "${response.data.bus.name}" has been added.`);
         })
         .catch(error => console.error(error));
     } else {
