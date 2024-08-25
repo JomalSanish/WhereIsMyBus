@@ -46,12 +46,29 @@ const routeSchema = new mongoose.Schema({
   ]
 });
 
+const busRouteSchema = new mongoose.Schema({
+  busName: String,
+  route: {
+    title: String,
+    stops: [
+      {
+        name: String,
+        location: {
+          latitude: Number,
+          longitude: Number,
+        }
+      }
+    ]
+  }
+});
+
 // Define models
 const Stop = mongoose.model('Stop', stopSchema);
 const Bus = mongoose.model('Bus', busSchema);
 const Route = mongoose.model('Route', routeSchema);
+const BusRoute = mongoose.model('BusRoute', busRouteSchema);
 
-// Routes
+// Routes for BusTracker app
 app.post('/add-stop', async (req, res) => {
   const { name, longitude, latitude } = req.body;
   const stop = new Stop({ name, location: { longitude, latitude } });
@@ -83,10 +100,36 @@ app.post('/add-route', async (req, res) => {
 });
 
 app.post('/add-bus', async (req, res) => {
-  const { name } = req.body;
-  const bus = new Bus({ name });
-  await bus.save();
-  res.send(bus);
+  const { name, routeId } = req.body;
+
+  try {
+    const route = await Route.findById(routeId);
+
+    if (!route) {
+      return res.status(404).json({ message: 'Route not found' });
+    }
+
+    // Save to Bus collection
+    const bus = new Bus({ name });
+    await bus.save();
+
+    // Save to BusRoute collection
+    const busRoute = new BusRoute({
+      busName: name,
+      route: {
+        title: route.title,
+        stops: route.stops.map(stop => ({
+          name: stop.name,
+          location: stop.location,
+        })),
+      }
+    });
+    await busRoute.save();
+
+    res.send({ bus, busRoute });
+  } catch (error) {
+    res.status(500).json({ message: 'Error adding bus', error });
+  }
 });
 
 app.post('/update-location', async (req, res) => {
@@ -124,6 +167,42 @@ app.get('/routes', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+// New routes for WIMB app
+
+// Search buses between two stops
+app.post('/search-buses', async (req, res) => {
+  const { from, to } = req.body;
+  try {
+    const buses = await BusRoute.find({
+      'route.stops.name': { $all: [from, to] }
+    });
+
+    if (buses.length === 0) {
+      return res.status(404).json({ message: 'No buses found for the given route' });
+    }
+
+    res.send(buses);
+  } catch (error) {
+    console.error('Error searching buses:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Get live location of a bus
+app.get('/bus-details/name/:name', async (req, res) => {
+  try {
+      const busName = req.params.name;
+      const busDetails = await Bus.findOne({ name: busName }).exec();
+      if (!busDetails) {
+          return res.status(404).json({ message: 'Bus not found' });
+      }
+      res.json(busDetails);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
+  }
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

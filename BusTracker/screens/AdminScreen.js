@@ -14,13 +14,13 @@ const AdminScreen = () => {
   }, []);
 
   const fetchBuses = () => {
-    axios.get('http://192.168.155.130:3000/buses')
+    axios.get('http://192.168.1.7:3000/buses')
       .then(response => setBuses(response.data))
       .catch(error => console.error(error));
   };
 
   const fetchRoutes = () => {
-    axios.get('http://192.168.155.130:3000/routes')
+    axios.get('http://192.168.1.7:3000/routes')
       .then(response => setRoutes(response.data))
       .catch(error => console.error(error));
   };
@@ -28,12 +28,12 @@ const AdminScreen = () => {
   const addBus = () => {
     if (busName.trim() !== '' && selectedRoute) {
       const formattedBusName = `${busName.trim()} ${selectedRoute.title}`;
-      axios.post('http://192.168.155.130:3000/add-bus', { name: formattedBusName })
+      axios.post('http://192.168.1.7:3000/add-bus', { name: formattedBusName, routeId: selectedRoute._id })
         .then(response => {
-          setBuses([...buses, response.data]);
+          setBuses([...buses, response.data.bus]);
           setBusName('');
           setSelectedRoute(null);
-          Alert.alert('Success', `Bus "${formattedBusName}" has been added.`);
+          Alert.alert('Success', `Bus "${response.data.bus.name}" has been added.`);
         })
         .catch(error => console.error(error));
     } else {
@@ -53,7 +53,7 @@ const AdminScreen = () => {
         {
           text: 'OK',
           onPress: () => {
-            axios.delete(`http://192.168.155.130:3000/delete-bus/${id}`)
+            axios.delete(`http://192.168.1.7:3000/delete-bus/${id}`)
               .then(() => {
                 setBuses(buses.filter(bus => bus._id !== id));
                 Alert.alert('Success', `Bus "${name}" has been removed.`);
