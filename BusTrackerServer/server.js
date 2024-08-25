@@ -68,7 +68,7 @@ const Bus = mongoose.model('Bus', busSchema);
 const Route = mongoose.model('Route', routeSchema);
 const BusRoute = mongoose.model('BusRoute', busRouteSchema);
 
-// Routes
+// Routes for BusTracker app
 app.post('/add-stop', async (req, res) => {
   const { name, longitude, latitude } = req.body;
   const stop = new Stop({ name, location: { longitude, latitude } });
@@ -167,6 +167,40 @@ app.get('/routes', async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+// New routes for WIMB app
+
+// Search buses between two stops
+app.post('/search-buses', async (req, res) => {
+  const { from, to } = req.body;
+  console.log('Searching buses with from:', from, 'to:', to);
+
+  try {
+    const buses = await BusRoute.find({
+      'route.stops.name': { $all: [from, to] }
+    });
+
+    if (buses.length === 0) {
+      return res.status(404).json({ message: 'No buses found for the given route' });
+    }
+
+    res.send(buses);
+  } catch (error) {
+    console.error('Error searching buses:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Get live location of a bus
+app.get('/bus-details/name/:name', async (req, res) => {
+  const busName = req.params.name;
+  const bus = await Bus.findOne({ name: busName });
+  if (!bus) {
+      return res.status(404).send('Bus not found');
+  }
+  res.json(bus);
+});
+
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
