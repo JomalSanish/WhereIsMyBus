@@ -193,12 +193,16 @@ app.post('/search-buses', async (req, res) => {
 
 // Get live location of a bus
 app.get('/bus-details/name/:name', async (req, res) => {
-  const busName = req.params.name;
-  const bus = await Bus.findOne({ name: busName });
-  if (!bus) {
-      return res.status(404).send('Bus not found');
+  try {
+      const busName = req.params.name;
+      const busDetails = await Bus.findOne({ name: busName }).exec();
+      if (!busDetails) {
+          return res.status(404).json({ message: 'Bus not found' });
+      }
+      res.json(busDetails);
+  } catch (error) {
+      res.status(500).json({ message: error.message });
   }
-  res.json(bus);
 });
 
 
