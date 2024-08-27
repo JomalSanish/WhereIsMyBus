@@ -7,13 +7,29 @@ export const darkTheme = StyleSheet.create({
     padding: 20,
     justifyContent: "center",
   },
+  containerinput: {
+    backgroundColor: '#121212',
+    padding: 20,
+    justifyContent: "center",
+    elevation: 5,
+    borderRadius: 20,
+  },
+  containerhistory: {
+    backgroundColor: '#121212',
+    padding: 20,
+    paddingBottom: 20,
+    justifyContent: "center",
+    elevation: 10,
+    borderRadius: 20,
+    gap: 10,
+  },
   text: {
     color: 'white',
     fontSize: 18,
     marginBottom: 10,
   },
   textbusdetails: {
-    color: 'white',
+    color: '#148f57',
     fontSize: 18,
     marginBottom: 10,
     fontWeight: 'bold',
@@ -26,7 +42,7 @@ export const darkTheme = StyleSheet.create({
   },
   input: {
     height: 40,
-    borderColor: '#148f57',
+    borderColor: 'white',
     borderWidth: 1,
     borderRadius: 6,
     paddingHorizontal: 10,
@@ -34,7 +50,7 @@ export const darkTheme = StyleSheet.create({
   },
   input2: {
     height: 40,
-    borderColor: '#148f57',
+    borderColor: 'white',
     borderWidth: 1,
     borderRadius: 6,
     marginBottom: 20,

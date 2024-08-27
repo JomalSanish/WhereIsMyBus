@@ -84,8 +84,8 @@ export default function main(){
 
   return(
     <>
-    {ots && (<View style={{width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', zIndex: 10, position: "absolute"}}>
-      <Animatable.View style={{width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#148f57', zIndex: 10, position: "absolute"}} duration={500} animation={'zoomout'} delay={2000}>
+    {ots && (<View style={{width: '100%', height: '100%' , alignItems: 'center', justifyContent: 'center', zIndex: 10, elevation: 10, position: "absolute"}}>
+      <Animatable.View style={{flex: 1, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', backgroundColor: '#148f57', zIndex: 10, position: "absolute"}} duration={500} animation={'zoomout'} delay={2000}>
           <Animatable.Image source={require('../assets/images/Frame 2 4.png')} style={{width: 95, height: 95}} duration={2500} animation={'mybounce'}/>
           <Animatable.Text style={{color: 'white', fontSize: 27, top: 5,fontFamily: 'londrinasolid'}} duration={2500} animation={'mybounce'}>Where's My Bus</Animatable.Text>
       </Animatable.View>

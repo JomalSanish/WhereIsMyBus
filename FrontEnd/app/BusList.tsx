@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, Button, ActivityIndicator, StyleSheet } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';  // Import useRoute and useNavigation
 import { darkTheme } from './styles';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function BusList() {
   const route = useRoute();
@@ -10,34 +11,53 @@ export default function BusList() {
   const [loading, setLoading] = useState(false);
 
 
+  const saveToSearchHistory = async (busWithStops) => {
+    try {
+      // Get the current history
+      const history = JSON.parse(await AsyncStorage.getItem('searchHistory')) || [];
+  
+      // Add the new item
+      history.unshift(busWithStops);
+  
+      // Keep only the latest 5 items
+      if (history.length > 5) {
+        history.pop();
+      }
+  
+      // Save back to AsyncStorage
+      await AsyncStorage.setItem('searchHistory', JSON.stringify(history));
+    } catch (error) {
+      console.error('Error saving to search history:', error);
+    }
+  };
+
+
   const handleBusSelect = async (bus) => {
     setLoading(true);
   
     try {
-      // Fetch the route details from the backend
-      const response = await fetch(`https://modest-rare-pegasus.ngrok-free.app/routes?route=${bus.route}`);
+      const response = await fetch(`https://modest-rare-pegasus.ngrok-free.app/routes?busName=${bus.busName}`);
       const routeData = await response.json();
   
-      if (!response.ok) {
-        throw new Error(routeData.error || 'Failed to fetch route data');
+      if (!response.ok || !routeData || !routeData.stops) {
+        throw new Error(routeData.error || 'Failed to fetch route data or stops not found');
       }
   
-      // Combine the fetched stops with the bus data
       const busWithStops = {
         ...bus,
-        stops: routeData.stops, // This will include both name and location for each stop
+        stops: routeData.stops,
       };
   
+      // Save busWithStops to AsyncStorage
+      await saveToSearchHistory(busWithStops);
+  
       setLoading(false);
-      // Navigate to the "BusDetails" page with the complete bus data
       navigation.navigate('BusDetails', { bus: busWithStops });
     } catch (error) {
       setLoading(false);
-      console.error('Error fetching route data:', error);
-      // Handle error (e.g., show an alert to the user)
+      Alert.alert('Error', 'Failed to fetch route data.');
     }
   };
-  
   
 
   return (
@@ -51,7 +71,7 @@ export default function BusList() {
           keyExtractor={(item) => item._id}
           renderItem={({ item }) => (
             <View style={styles.busItem}>
-              <Text style={darkTheme.text}>{item.name}</Text>
+              <Text style={darkTheme.text}>{item.busName}</Text>
               <Button title="Select" color="#148f57" onPress={() => handleBusSelect(item)} />
             </View>
           )}

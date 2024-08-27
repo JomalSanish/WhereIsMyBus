@@ -11,53 +11,51 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // MongoDB connection
-mongoose.connect('mongodb+srv://22cs029:1234567890@locations.uavka58.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority');
+mongoose.connect('mongodb+srv://whereismybusapp:whereismybus123@whereismybus.xo0bi.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority&appName=WhereIsMyBus');
 
-
-
-
-
-//bus collection
-const busnSchema = new mongoose.Schema({
-  name: String,
-  route: String,
-  location:{
+// Updated Schemas
+const stopsSchema = new mongoose.Schema({
+  name: String, 
+  location: {
     latitude: Number,
     longitude: Number,
   }
 });
 
-const Busn = mongoose.model('buses', busnSchema);
+const busesSchema = new mongoose.Schema({
+  name: String, 
+  location: {
+    latitude: Number,
+    longitude: Number,
+  }
+});
 
-
-const busroutesSchema = new mongoose.Schema({
-  title: String,
-  stops:[{
-    name: String,
-    number: Number,
+const routeSchema = new mongoose.Schema({
+  title: String, 
+  stops: [{
+    name: String 
   }]
 });
 
-const Busroutes = mongoose.model('routes', busroutesSchema);
-
-
-const busstopsSchema = new mongoose.Schema({
-  name: String,
-  location:{
-    latitude: Number,
-    longitude: Number,
+const busRouteSchema = new mongoose.Schema({
+  busName: String, 
+  route: {
+    title: String,
+    stops: [{
+      name: String,
+      location: {
+        latitude: Number,
+        longitude: Number,
+      }
+    }]
   }
 });
 
-const Busstops = mongoose.model('stops', busstopsSchema);
-//end of schemas
-
-
-
-
-
-
-
+// Models
+const Stops = mongoose.model('stops', stopsSchema);
+const Buses = mongoose.model('buses', busesSchema);
+const Routes = mongoose.model('routes', routeSchema);
+const BusRoutes = mongoose.model('busroutes', busRouteSchema);
 
 // Utility function to process strings
 const formatString = (str) => {
@@ -73,73 +71,73 @@ app.get('/buses', async (req, res) => {
     from = formatString(from);
     to = formatString(to);
 
-    // Find the routes that contain both from and to in the stops array
-    const routes = await Busroutes.find({
+    // Find the routes where "from" comes before "to" in the stops array
+    const routes = await Routes.find({
       stops: {
         $all: [
           { $elemMatch: { name: from } },
           { $elemMatch: { name: to } }
         ]
       }
-    }).select('title'); // Only select the title (route name)
+    }).select('title stops');
 
-    // Extract route titles from the routes array
-    const routeTitles = routes.map(route => route.title);
-
-    // Find buses whose route is in the list of routes
-    const buses = await Busn.find({
-      route: { $in: routeTitles }
+    // Filter routes where "from" comes before "to"
+    const filteredRoutes = routes.filter(route => {
+      const fromIndex = route.stops.findIndex(stop => stop.name === from);
+      const toIndex = route.stops.findIndex(stop => stop.name === to);
+      return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
     });
 
+    const routeTitles = filteredRoutes.map(route => route.title);
+
+    const busRoutes = await BusRoutes.find({
+      "route.title": { $in: routeTitles }
+    });
+
+    res.json(busRoutes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.get('/bus-details', async (req, res) => {
+  const { busName } = req.query;
+  try {
+    const buses = await Buses.findOne({ name : busName });
     res.json(buses);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// Route to get bus stops
 app.get('/bus-stops', async (req, res) => {
   const { query } = req.query;
-
   try {
-    const stops = await Busstops.find({ name: new RegExp(query, 'i') });
+    const stops = await Stops.find({ name: new RegExp(query, 'i') });
     res.json(stops);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
+// Route to get routes
 app.get('/routes', async (req, res) => {
   try {
-    const { route } = req.query;
+    const { busName } = req.query;
 
-    // Find the route that matches the given route title
-    const matchingRoute = await Busroutes.findOne({ title: route });
+    const busRoute = await BusRoutes.findOne({ busName });
 
-    if (!matchingRoute) {
-      return res.status(404).json({ error: 'Route not found' });
+    if (!busRoute) {
+      return res.status(404).json({ error: 'Bus route not found' });
     }
 
-    // Get detailed stop information (name and location) for each stop in the route
-    const stopsDetails = await Busstops.find({
-      name: { $in: matchingRoute.stops.map(stop => stop.name) }
-    }).select('name location');
-
-    // Combine the original stops array with the detailed stop information
-    const detailedStops = matchingRoute.stops.map(stop => {
-      const detail = stopsDetails.find(detail => detail.name === stop.name);
-      return {
-        name: stop.name,
-        location: detail ? detail.location : null, // Include location if found
-      };
-    });
-
-    res.json({ ...matchingRoute.toObject(), stops: detailedStops });
+    res.json(busRoute.route);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
-
-
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);
