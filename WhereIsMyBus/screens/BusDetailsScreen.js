@@ -9,7 +9,7 @@ const BusDetailsScreen = ({ route }) => {
     useEffect(() => {
         if (busName) {
             axios
-                .get(`http://192.168.1.4:3000/bus-details/name/${encodeURIComponent(busName)}`)
+                .get(`    https://server-ewx3.onrender.com/bus-details/name/${encodeURIComponent(busName)}`)
                 .then(response => {
                     setBusDetails(response.data);
                 })

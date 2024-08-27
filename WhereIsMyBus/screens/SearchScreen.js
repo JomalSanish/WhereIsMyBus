@@ -11,7 +11,7 @@ const SearchScreen = ({ navigation }) => {
 
   useEffect(() => {
     // Fetch stops data when component mounts
-    axios.get('http://192.168.1.4:3000/stops')
+    axios.get('    https://server-ewx3.onrender.com/stops')
       .then(response => setSuggestions(response.data))
       .catch(error => console.error(error));
   }, []);
