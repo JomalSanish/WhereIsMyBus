@@ -8,7 +8,7 @@ const BusListScreen = ({ route, navigation }) => {
 
     useEffect(() => {
         axios
-            .post(`http://192.168.1.4:3000/search-buses`, { from: fromLocation, to: toLocation })
+            .post(`    https://server-ewx3.onrender.com/search-buses`, { from: fromLocation, to: toLocation })
             .then(response => {
                 setBuses(response.data);
             })
