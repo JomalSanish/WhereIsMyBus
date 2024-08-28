@@ -1,107 +1,235 @@
+/* General Styles */
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-  }
-  
-  .main-container {
-    padding: 10px;
-    background-color: #e0f7e9; /* Light green background color */
-    min-height: 100vh;
-  }
-  
-  .header {
-    background-color: #00a551; /* Dark green background color */
-    padding: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    color: white;
-  }
-  
-  .menu-icon {
-    width: 24px;
-    height: 24px;
-  }
-  
-  .title {
-    font-size: 24px;
-    font-weight: bold;
-    margin: 0;
-  }
-  
-  .search-container, .history-container {
-    margin-top: 20px;
-  }
-  
-  .section-title {
-    color: #00a551; /* Dark green color */
-    font-size: 18px;
-    margin-bottom: 10px;
-  }
-  
-  .search-box {
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .input-group {
-    display: flex;
-    align-items: center;
-    margin-bottom: 10px;
-  }
-  
-  .location-icon {
-    width: 17px;
-    height: 17px;
-    margin-right: 10px;
-  }
-  
-  .input-field {
-    width: calc(100% - 34px); /* Adjust width to account for icon */
-    padding: 10px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-  }
-  
-  .swap-button {
-    background: none;
-    border: none;
-    margin: 10px 0;
-    cursor: pointer;
-  }
-  
-  .swap-button img {
-    width: 24px;
-    height: 24px;
-    margin-left: 250px;
-  }
-  
-  .search-button {
-    width: 100%;
-    padding: 10px;
-    background-color: #00a551;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-  }
-  
-  .history-box {
-    background-color: white;
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .history-item {
-    padding: 10px;
-    background-color: #f1f1f1;
-    border-radius: 5px;
-    margin-top: 10px;
-    font-size: 14px;
-  }
-  
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+.main-container {
+  position: relative;
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  padding: 10px; /* Added padding */
+  background-color: #e0f7e9; /* Light green background color */
+  height: 650px; /* Adjust height */
+}
+
+/* Header Styles */
+.header {
+  background-color: #00a551; /* Dark green background color */
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: white;
+}
+
+.menu-icon {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 15px; /* Updated font size */
+  margin-right: 75px; /* Center the title */
+}
+
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -100%;
+  width: 250px;
+  height: 100%;
+  background-color: #e0f7e9; /* Light green background color */
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: left 0.3s ease; /* Slide effect */
+  z-index: 1000; /* Appear on top */
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0; /* Show sidebar */
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #00a551; /* Dark green background color */
+  padding: 10px;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+}
+
+.sidebar-title {
+  font-size: 15px;
+  flex-grow: 1;
+  margin: 0 10px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.version-info {
+  text-align: right;
+  font-weight: bold;
+  color: #000;
+  font-size: 12px;
+  margin-bottom: 10px;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-menu li {
+  display: flex;
+  align-items: center;
+  margin: 15px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.menu-icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+}
+
+.sidebar-menu li a {
+  text-decoration: none;
+  color: black;
+  font-size: 16px;
+}
+
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin: 15px 0;
+}
+
+.sidebar ul li a {
+  text-decoration: none;
+  color: #333;
+}
+
+/* Overlay Styles */
+.main-container .overlay {
+  display: none; /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 500; /* Below the sidebar */
+}
+
+.main-container .overlay.show {
+  display: block; /* Show overlay when sidebar is open */
+}
+
+/* Search Container Styles */
+.search-container, .history-container {
+  margin-top: 20px;
+}
+
+.section-title {
+  color: #00a551; /* Dark green color */
+  font-size: 12px; /* Adjusted font size */
+  margin-bottom: 10px;
+}
+
+.search-box {
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.location-icon {
+  width: 17px;
+  height: 17px;
+  margin-right: 10px;
+}
+
+.input-field {
+  width: calc(100% - 34px); /* Adjust width to account for icon */
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.swap-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  margin: 0;
+  padding: 0;
+}
+
+.swap-button img {
+  width: 32px;
+  height: 32px;
+  margin-left: 250px; /* Adjusted margin */
+}
+
+.search-button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00a551;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* History Box Styles */
+.history-box {
+  background-color: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.history-item {
+  padding: 10px;
+  background-color: #f1f1f1;
+  border-radius: 5px;
+  margin-top: 10px;
+  font-size: 14px;
+}

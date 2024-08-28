@@ -19,7 +19,7 @@ function App() {
   return (
     <div className="container">
       <img src="logo.png" alt="Logo" className="icon" />
-      <h1 className="title">WHERE IS MY BUS</h1>
+      <h1 className="titleF">WHERE IS MY BUS</h1>
     </div>
   );
 }
