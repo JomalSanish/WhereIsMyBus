@@ -11,7 +11,8 @@ export const darkTheme = StyleSheet.create({
     backgroundColor: '#121212',
     padding: 20,
     justifyContent: "center",
-    elevation: 5,
+    shadowColor: 'black',
+    elevation: 10,
     borderRadius: 20,
   },
   containerhistory: {
@@ -19,6 +20,7 @@ export const darkTheme = StyleSheet.create({
     padding: 20,
     paddingBottom: 20,
     justifyContent: "center",
+    shadowColor: 'black',
     elevation: 10,
     borderRadius: 20,
     gap: 10,
