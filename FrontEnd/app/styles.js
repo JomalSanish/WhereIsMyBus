@@ -31,7 +31,7 @@ export const darkTheme = StyleSheet.create({
     marginBottom: 10,
   },
   textbusdetails: {
-    color: '#148f57',
+    color: '#1FA15B',
     fontSize: 18,
     marginBottom: 10,
     fontWeight: 'bold',

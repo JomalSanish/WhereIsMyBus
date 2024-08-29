@@ -17,108 +17,109 @@ export default function BusDetails() {
   const isFocused = useIsFocused();
 
   useEffect(() => {
-    if(isFocused)
-    {
-      (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        Alert.alert('Permission to access location was denied');
-        return;
+    const fetchData = async () => {
+      try {
+        const [locationStatus, stopDetailsResponse] = await Promise.all([
+          Location.requestForegroundPermissionsAsync(),
+          fetch(`https://wimb-server.onrender.com/bus-details?busName=${bus.busName}`)
+        ]);
+  
+        if (locationStatus.status !== 'granted') {
+          Alert.alert('Permission to access location was denied');
+          return;
+        }
+  
+        const location = await Location.getCurrentPositionAsync({});
+        setCurrentLocation({
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+  
+        const busData = await stopDetailsResponse.json();
+        setBusLocation(busData.location);
+  
+        const stopDetailsPromises = bus.stops.map(async (stop) => {
+          const response = await fetch(`https://wimb-server.onrender.com/bus-stops?query=${stop.name}`);
+          const data = await response.json();
+          return data[0] || {}; // Return the first matching stop
+        });
+  
+        const results = await Promise.all(stopDetailsPromises);
+        setStopDetails(results);
+  
+        // Determine stop statuses
+        const statuses = results.map((stop) => ({
+          ...stop,
+          status: getStopStatus(busData.location, stop.location),
+        }));
+        setStopStatuses(statuses);
+  
+        // Find nearest stop
+        findNearestStop(results, {
+          latitude: location.coords.latitude,
+          longitude: location.coords.longitude,
+        });
+  
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        Alert.alert('Error', 'Failed to fetch bus or stop data.');
       }
-
-      let location = await Location.getCurrentPositionAsync({});
-      const currentLocation = {
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      };
-      setCurrentLocation(currentLocation);
-
-      // Fetch bus location
-      const fetchBusLocation = async () => {
-        try {
-          const response = await fetch(`https://modest-rare-pegasus.ngrok-free.app/bus-details?busName=${bus.busName}`);
-          const busData = await response.json();
-          setBusLocation(busData.location); // Store the bus location
-        } catch (error) {
-          console.error('Error fetching bus location:', error);
-          Alert.alert('Error', 'Failed to fetch bus location.');
-        }
-      };
-
-      // Fetch stop details and update statuses
-      const fetchStopDetails = async () => {
-        try {
-          const stopDetailsPromises = bus.stops.map(async (stop) => {
-            const response = await fetch(`https://modest-rare-pegasus.ngrok-free.app/bus-stops?query=${stop.name}`);
-            const data = await response.json();
-            return data[0] || {}; // Return the first matching stop
-          });
-
-          const results = await Promise.all(stopDetailsPromises);
-          setStopDetails(results);
-
-          // Find the nearest stop
-          let nearest = null;
-          let minDistance = Infinity;
-          for (const stop of results) {
-            const distance = getDistance(currentLocation, stop.location);
-            if (distance < minDistance) {
-              minDistance = distance;
-              nearest = stop;
-            }
-          }
-          setNearestStop(nearest);
-
-          // Determine stop statuses
-          const statuses = results.map((stop) => ({
-            ...stop,
-            status: getStopStatus(busLocation, stop.location), // Pass busLocation instead of currentLocation
-          }));
-          setStopStatuses(statuses);
-        } catch (error) {
-          console.error('Error fetching stop details:', error);
-          Alert.alert('Error', 'Failed to fetch stop details.');
-        }
-      };
-      await fetchBusLocation(); // Ensure the bus location is fetched before fetching stop details
-      await fetchStopDetails();
-    })();
-  }
-    const timeoutId = setTimeout(() => {
-      settimerout(!timerout);
-    }, 2000);
-  }, [timerout, useIsFocused]);
+    };
+  
+    fetchData();
+  }, [bus.busName]);
+  
 
   const getDistance = (loc1, loc2) => {
-    if (!loc2) return Infinity; // Return a large distance if location is not found
+    if (!loc2) return Infinity;
     const toRadian = (angle) => (Math.PI / 180) * angle;
     const distance = (a, b) => (Math.PI / 180) * (a - b);
     const R = 6371; // Earth radius in km
-
+  
     const dLat = distance(loc2.latitude, loc1.latitude);
     const dLon = distance(loc2.longitude, loc1.longitude);
-
+  
     const lat1 = toRadian(loc1.latitude);
     const lat2 = toRadian(loc2.latitude);
-
-    // Haversine formula
-    const a = Math.pow(Math.sin(dLat / 2), 2) +
-      Math.pow(Math.sin(dLon / 2), 2) *
-      Math.cos(lat1) *
-      Math.cos(lat2);
-    const c = 2 * Math.asin(Math.sqrt(a));
-
+  
+    const a = Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) *
+      Math.sin(dLon / 2) ** 2;
+  
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
     return R * c;
   };
-
+  
   const getStopStatus = (busLocation, stopLocation) => {
     if (!stopLocation || !busLocation) return 'Not Reached';
     const distance = getDistance(busLocation, stopLocation);
-    // Adjust the distance threshold as needed
     return distance < 0.1 ? 'Reached' : 'Not Reached';
   };
+
+  const findNearestStop = (stops, currentLocation) => {
+    let nearest = null;
+    let minDistance = Infinity;
+    for (const stop of stops) {
+      const distance = getDistance(currentLocation, stop.location);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = stop;
+      }
+    }
+    setNearestStop(nearest);
+  };
+
+  useEffect(() => {
+    if (busLocation && stopDetails.length > 0) {
+      const statuses = stopDetails.map((stop) => ({
+        ...stop,
+        status: getStopStatus(busLocation, stop.location),
+      }));
+      setStopStatuses(statuses);
+    }
+  }, [busLocation, stopDetails]);
+  
 
   const handlePress = () => {
     if (nearestStop) {

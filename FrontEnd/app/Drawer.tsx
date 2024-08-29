@@ -51,7 +51,7 @@ export default function AppNavigator() {
           <AppIcon style={{width: 95, height: 95, top: -7, right: 10}}/>
           <Text style={styles.drawermenuhe}>Where's My Bus</Text>
         </View>
-        <View style={{height: '100%', backgroundColor: '#148f57', paddingHorizontal: 16}}>
+        <View style={{height: '100%', backgroundColor: '#1FA15B', paddingHorizontal: 16}}>
           <TouchableOpacity style={{padding: 20}} onPress={() => navigation.navigate('Help')}>
             <Helpicon style={darkTheme.drawermenuic}/>
             <Text style={styles.drawermenust}>More Information</Text>

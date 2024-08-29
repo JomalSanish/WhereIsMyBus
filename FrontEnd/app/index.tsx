@@ -91,6 +91,7 @@ export default function main(){
       </Animatable.View>
       </View>)}
     <Finalstack/>
+    <View style={{backgroundColor: '#148f57', width: '100%', height: '0.7%',position: 'static', bottom: 0}}/>
     </>
   );
 }

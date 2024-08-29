@@ -18,6 +18,34 @@ import DottedLine from "@/assets/Svg/DottedLine";
 import Circleart from "@/assets/Svg/Circleart";
 import { ScrollView } from "react-native-gesture-handler";
 
+const SUGGESTIONS_STORAGE_KEY = "suggestions";
+
+const fetchAndStoreSuggestions = async () => {
+  try {
+    const response = await fetch("https://wimb-server.onrender.com/bus-stops");
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+    const data = await response.json();
+    await AsyncStorage.setItem(SUGGESTIONS_STORAGE_KEY, JSON.stringify(data));
+  } catch (error) {
+    console.error("Error fetching and storing suggestions:", error);
+  }
+};
+
+const loadSuggestions = async () => {
+  try {
+    const storedSuggestions = await AsyncStorage.getItem(SUGGESTIONS_STORAGE_KEY);
+    if (storedSuggestions) {
+      return JSON.parse(storedSuggestions);
+    }
+    return [];
+  } catch (error) {
+    console.error("Error loading suggestions:", error);
+    return [];
+  }
+};
+
 export default function HomeScreen() {
   const navigation = useNavigation();
   const [from, setFrom] = useState("");
@@ -50,10 +78,20 @@ export default function HomeScreen() {
     }
   }, [isFocused]);
 
+  useEffect(() => {
+    const updateSuggestions = async () => {
+      await fetchAndStoreSuggestions();
+      const suggestions = await loadSuggestions();
+      setfromsuggestions(suggestions);
+      settosuggestions(suggestions);
+    };
+    updateSuggestions();
+  }, []);
+
   const handleSearch = () => {
     Keyboard.dismiss(); // Dismiss the keyboard on search
     fetch(
-      `https://modest-rare-pegasus.ngrok-free.app/buses?from=${from}&to=${to}`
+      `https://wimb-server.onrender.com/buses?from=${from}&to=${to}`
     )
       .then((response) => {
         if (!response.ok) {
@@ -74,42 +112,16 @@ export default function HomeScreen() {
       });
   };
 
-  const handlefromsuggSearch = () => {
-    fetch(`https://modest-rare-pegasus.ngrok-free.app/bus-stops?query=${from}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.length === 0) {
-        } else {
-          setfromsuggestions(data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching bus data:", error);
-      });
+  const handlefromsuggSearch = async () => {
+    const suggestions = await loadSuggestions();
+    const filteredSuggestions = suggestions.filter(sugg => sugg.name.toLowerCase().includes(from.toLowerCase()));
+    setfromsuggestions(filteredSuggestions);
   };
 
-  const handletosuggSearch = () => {
-    fetch(`https://modest-rare-pegasus.ngrok-free.app/bus-stops?query=${to}`)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        if (data.length === 0) {
-        } else {
-          settosuggestions(data);
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching bus data:", error);
-      });
+  const handletosuggSearch = async () => {
+    const suggestions = await loadSuggestions();
+    const filteredSuggestions = suggestions.filter(sugg => sugg.name.toLowerCase().includes(to.toLowerCase()));
+    settosuggestions(filteredSuggestions);
   };
 
   const handleFromChange = (text) => {
@@ -146,8 +158,9 @@ export default function HomeScreen() {
             paddingHorizontal: 15,
             paddingTop: 35,
             gap: 25,
-            backgroundColor: "#148f57",
-            flex: 1,
+            backgroundColor: "#1FA15B",
+            height: '100%',
+            width: '100%',
           }}
         >
           <View style={darkTheme.containerinput}>
@@ -195,7 +208,7 @@ export default function HomeScreen() {
                       >
                         {fromsuggestions.map((fromsugg) => (
                           <TouchableOpacity
-                            onPress={() => setFrom(fromsugg.name)}
+                            onPress={() => [setFrom(fromsugg.name), Keyboard.dismiss()]}
                             key={fromsugg._id}
                             style={{
                               backgroundColor: "#121212",
@@ -238,7 +251,7 @@ export default function HomeScreen() {
                         >
                           {tosuggestions.map((tosugg) => (
                             <TouchableOpacity
-                              onPress={() => setTo(tosugg.name)}
+                              onPress={() => [setTo(tosugg.name), Keyboard.dismiss()]}
                               key={tosugg._id}
                               style={{
                                 backgroundColor: "#121212",
@@ -284,7 +297,7 @@ export default function HomeScreen() {
           </View>
           <View style={darkTheme.containerhistory}>
             <Text
-              style={{ fontWeight: "bold", color: "#148f57", fontSize: 18 }}
+              style={{ fontWeight: "bold", color: "#1FA15B", fontSize: 18 }}
             >
               Search History
             </Text>

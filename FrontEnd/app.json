@@ -8,11 +8,11 @@
       "android"
     ],
     "orientation": "portrait",
-    "icon": "./assets/images/Frame 2 4.png",
+    "icon": "./FrontEnd/assets/images/Frame 2 4.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/images/Frame 2 4.png",
+      "image": "./FrontEnd/assets/images/Frame 2 4.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -27,14 +27,14 @@
         "ACCESS_FINE_LOCATION"
       ],
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/Frame 2 4.png",
+        "foregroundImage": "./FrontEnd/assets/images/Frame 2 4.png",
         "backgroundColor": "#ffffff"
       }
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/images/Frame 2 4.png"
+      "favicon": "./FrontEnd/assets/images/Frame 2 4.png"
     },
     "plugins": [
       "expo-router",
