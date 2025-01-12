@@ -2,44 +2,16 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const redis = require('redis');
-const { promisify } = require('util');
 
 const app = express();
 const port = 3000;
 
-// Redis setup for caching
-const redisClient = redis.createClient({
-  host: 'localhost',
-  port: 6379
-});
-
-const getAsync = promisify(redisClient.get).bind(redisClient);
-const setAsync = promisify(redisClient.set).bind(redisClient);
-
-// Cache middleware
-const cache = async (req, res, next) => {
-  const key = req.originalUrl;
-  const cachedResponse = await getAsync(key);
-  
-  if (cachedResponse) {
-    res.json(JSON.parse(cachedResponse));
-    return;
-  }
-  next();
-};
-
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(cache);
 
-// MongoDB connection with connection pooling
-mongoose.connect('mongodb+srv://whereismybusapp:whereismybus123@whereismybus.xo0bi.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority&appName=WhereIsMyBus', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  poolSize: 10
-});
+// MongoDB connection
+mongoose.connect('mongodb+srv://whereismybusapp:whereismybus123@whereismybus.xo0bi.mongodb.net/WhereIsMyBus?retryWrites=true&w=majority&appName=WhereIsMyBus');
 
 // Updated Schemas
 const stopsSchema = new mongoose.Schema({
@@ -95,39 +67,45 @@ const formatString = (str) => {
 // Routes for buses
 app.get('/buses', async (req, res) => {
   try {
-    const { from, to } = req.query;
-    const cacheKey = `buses:${from}:${to}`;
-    
-    const cachedResult = await getAsync(cacheKey);
-    if (cachedResult) {
-      return res.json(JSON.parse(cachedResult));
-    }
+    let { from, to } = req.query;
+    from = formatString(from);
+    to = formatString(to);
 
-    const formattedFrom = formatString(from);
-    const formattedTo = formatString(to);
-
+    // Find the routes where "from" comes before "to" in the stops array
     const routes = await Routes.find({
       stops: {
         $all: [
-          { $elemMatch: { name: formattedFrom } },
-          { $elemMatch: { name: formattedTo } }
+          { $elemMatch: { name: from } },
+          { $elemMatch: { name: to } }
         ]
       }
-    }).lean();
+    }).select('title stops');
 
+    // Filter routes where "from" comes before "to"
     const filteredRoutes = routes.filter(route => {
-      const fromIndex = route.stops.findIndex(stop => stop.name === formattedFrom);
-      const toIndex = route.stops.findIndex(stop => stop.name === formattedTo);
-      return fromIndex < toIndex;
+      const fromIndex = route.stops.findIndex(stop => stop.name === from);
+      const toIndex = route.stops.findIndex(stop => stop.name === to);
+      return fromIndex !== -1 && toIndex !== -1 && fromIndex < toIndex;
     });
 
     const routeTitles = filteredRoutes.map(route => route.title);
+
     const busRoutes = await BusRoutes.find({
       "route.title": { $in: routeTitles }
-    }).lean();
+    });
 
-    await setAsync(cacheKey, JSON.stringify(busRoutes), 'EX', 300); // Cache for 5 minutes
     res.json(busRoutes);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+app.get('/bus-details', async (req, res) => {
+  const { busName } = req.query;
+  try {
+    const buses = await Buses.findOne({ name : busName });
+    res.json(buses);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
